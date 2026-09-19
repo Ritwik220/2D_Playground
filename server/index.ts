@@ -38,9 +38,7 @@ io.on("connection", (socket) => {
     // voiced player joined
     socket.broadcast.emit(
         "voiced_peer_joined",
-        {
-            id:socket.id,
-        }
+        socket.id,
     )
 
     // movement
