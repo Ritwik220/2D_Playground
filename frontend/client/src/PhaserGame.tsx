@@ -9,14 +9,11 @@ export default function PhaserGame() {
     useEffect(() => {
         const config: Phaser.Types.Core.GameConfig = {
             type: Phaser.AUTO,
-            width: 1980,
-            height: 1080,
-            parent: "game-container",
-            scale: {
-                mode: Phaser.Scale.FIT,
-                autoCenter: Phaser.Scale.CENTER_BOTH
-            },
 
+            width: 800,
+            height: 600,
+
+            parent: gameRef.current!,
             physics: {
                 default: "arcade",
                 arcade: {
@@ -24,8 +21,8 @@ export default function PhaserGame() {
                     debug: false             // Toggle to true to see bounding boxes
                 }
             },
+            scene: GameScene,
 
-            scene: [GameScene]
         };
 
         const game = new Phaser.Game(config);
