@@ -146,7 +146,7 @@ export default class GameScene extends Phaser.Scene {
                     player.y,
                     "idle_up"
                 );
-
+                this.physics.add.collider(this.player, player);
                 this.otherPlayers.set(player.id, sprite);
             });
         });
