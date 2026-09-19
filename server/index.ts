@@ -1,28 +1,32 @@
-import express, {type Request, type Response, type Express} from 'express';
+import express, { type Request, type Response, type Express } from 'express';
 import { Server } from 'socket.io';
 import { createServer } from "http";
 
-const app:Express = express();
+const app: Express = express();
 const httpServer = createServer(app);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 const io = new Server(httpServer, {
-    cors:{
+    cors: {
         origin: true
     }
 })
 
 const players = new Map();
+// Tracks which sockets have their mic ready and have announced voice_ready.
+// A peer is only offered to (or offers to) others once both sides are ready,
+// which avoids the race where an offer arrives before localStream exists.
+const voiceReadyPeers = new Set<string>();
 const port = process.env.PORT || 3001;
 
 
 io.on("connection", (socket) => {
     // setup
-    console.log("PLayer connected", socket.id);
+    console.log("Player connected", socket.id);
 
     players.set(socket.id, {
         id: socket.id,
-        x:400,
-        y:300,
+        x: 400,
+        y: 300,
         direction: "up",
         action: "idle"
     })
@@ -39,7 +43,7 @@ io.on("connection", (socket) => {
     socket.on("player_move", (data) => {
         const player = players.get(socket.id);
 
-        if(!player) return;
+        if (!player) return;
 
         player.x = data.x;
         player.y = data.y;
@@ -48,9 +52,16 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("player_moved", player);
     })
 
-
-    // voiced player joined
-    socket.broadcast.emit("voiced_peer_joined", socket.id);
+    // Voice readiness handshake.
+    // When a client's mic is ready, it tells us; we hand it the list of
+    // peers who are already ready (guaranteed to have their own localStream
+    // set), and the new client creates offers to those peers. We do NOT
+    // proactively tell existing peers about the new one, because that's
+    // exactly the race that used to break voice chat.
+    socket.on("voice_ready", () => {
+        socket.emit("voice_ready_peers", Array.from(voiceReadyPeers));
+        voiceReadyPeers.add(socket.id);
+    });
 
     socket.on("voice_offer", ({ target, offer }) => {
         io.to(target).emit("voice_offer", {
@@ -74,8 +85,9 @@ io.on("connection", (socket) => {
     });
 
     // Disconnect
-    socket.on("disconnect", (data) => {
+    socket.on("disconnect", () => {
         players.delete(socket.id);
+        voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
     })
@@ -84,4 +96,3 @@ io.on("connection", (socket) => {
 httpServer.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
-
