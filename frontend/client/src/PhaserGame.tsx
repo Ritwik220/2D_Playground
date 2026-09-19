@@ -9,13 +9,19 @@ export default function PhaserGame() {
     useEffect(() => {
         const config: Phaser.Types.Core.GameConfig = {
             type: Phaser.AUTO,
-
             width: 800,
             height: 600,
+            parent: "game-container",
 
-            parent: gameRef.current!,
+            physics: {
+                default: "arcade",
+                arcade: {
+                    gravity: { x: 0, y: 0 }, // Top-down games generally use 0 gravity
+                    debug: false             // Toggle to true to see bounding boxes
+                }
+            },
 
-            scene: GameScene
+            scene: [GameScene]
         };
 
         const game = new Phaser.Game(config);
