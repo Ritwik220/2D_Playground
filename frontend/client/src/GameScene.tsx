@@ -243,7 +243,7 @@ export default class GameScene extends Phaser.Scene {
         }
         this.player.x += moveX * speed * delta / 1000;
         this.player.y += moveY * speed * delta / 1000;
-        if(this.stateChanged) {
+        if(this.stateChanged || moveX === 1 || moveY === 1) {
             this.socket.emit("player_move", {
                 x: this.player.x,
                 y: this.player.y,
