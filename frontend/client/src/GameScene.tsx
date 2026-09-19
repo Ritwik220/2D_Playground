@@ -4,6 +4,8 @@ import { Socket, io } from "socket.io-client";
 
 
 export default class GameScene extends Phaser.Scene {
+    private peerConnection!: RTCPeerConnection;
+    private localStream!: MediaStream;
     private direction = "up";
     private prevState = "idle";
     private stateChanged = false;
@@ -29,8 +31,8 @@ export default class GameScene extends Phaser.Scene {
 
     preload() {
         this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
-        this.Actions.forEach((action:string, index:number) => {
-            this.directions.forEach((dir:string, index:number) => {
+        this.Actions.forEach((action:string) => {
+            this.directions.forEach((dir:string) => {
                 this.load.spritesheet(
                     `${action}_${dir}`,
                     `/Sprites/${action}/${action}_${dir}.png`,
@@ -45,7 +47,7 @@ export default class GameScene extends Phaser.Scene {
         
     }
 
-    create() {
+    async create() {
         this.socket = io("http://localhost:3001");
         this.socket.on("players", (players) => {
             players.forEach((player:any) => {
@@ -94,8 +96,8 @@ export default class GameScene extends Phaser.Scene {
             this.otherPlayers.delete(id);
 
         });
-        this.Actions.forEach((action:string, index:number) => {
-            this.directions.forEach((dir:string, index:number) => {
+        this.Actions.forEach((action:string) => {
+            this.directions.forEach((dir:string) => {
                 this.anims.create({
                     key: `${action}_${dir}`,
                     frames: this.anims.generateFrameNumbers(`${action}_${dir}`),
@@ -116,10 +118,17 @@ export default class GameScene extends Phaser.Scene {
 
         this.player.anims.play("idle_up", true);
 
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true})
+        this.localStream = stream;
+        this.peerConnection = new RTCPeerConnection();
+        this.localStream.getTracks().forEach(track => {
+            this.peerConnection.addTrack(track, this.localStream);
+
+        })
         EventBus.emit("lol", this);
     }
 
-    update(time:number, delta:number) {
+    update(_time:number, delta:number) {
         var moveX:number, moveY:number;
         moveX = moveY = 0;
         const speed = 100;
