@@ -156,6 +156,7 @@ export default class GameScene extends Phaser.Scene {
                 player.y,
                 "idle_up"
             );
+            this.physics.add.collider(this.player, sprite);
             this.otherPlayers.set(player.id, sprite);
         });
         this.socket.on("player_moved", (player) => {
