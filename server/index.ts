@@ -7,7 +7,7 @@ const httpServer = createServer(app);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 const io = new Server(httpServer, {
     cors:{
-        origin: frontendUrl
+        origin: true
     }
 })
 
