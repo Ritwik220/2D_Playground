@@ -1,9 +1,13 @@
 import Phaser from "phaser";
 import { EventBus } from "./EventBus";
+import { Socket, io } from "socket.io-client";
 
 
 export default class GameScene extends Phaser.Scene {
     private direction = "up";
+    private prevState = "idle";
+    private stateChanged = false;
+    private socket!: Socket;
     private action = "idle";
     private player!:Phaser.GameObjects.Sprite;
     private keys!: {
@@ -14,6 +18,10 @@ export default class GameScene extends Phaser.Scene {
     };
     private Actions = ['idle', 'run', 'attack1', 'attack2'];
     private directions = ['up', 'down', 'left', 'right'];
+    private otherPlayers = new Map<
+        string,
+        Phaser.GameObjects.Sprite
+    >();
 
     constructor() {
         super("Game Scene");
@@ -38,12 +46,60 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.socket = io("http://localhost:3001");
+        this.socket.on("players", (players) => {
+            players.forEach((player:any) => {
+
+            if (player.id === this.socket.id) return;
+
+            const sprite = this.add.sprite(
+                player.x,
+                player.y,
+                "idle_up"
+            );
+
+            this.otherPlayers.set(player.id, sprite);
+            });
+        });
+        this.socket.on("player_joined", (player) => {
+            const sprite = this.add.sprite(
+                player.x,
+                player.y,
+                "idle_up"
+            );
+            this.otherPlayers.set(player.id, sprite);
+        });
+        this.socket.on("player_moved", (player) => {
+
+            const sprite = this.otherPlayers.get(player.id);
+
+                if (!sprite) return;
+
+                sprite.setPosition(player.x, player.y);
+
+                sprite.anims.play(
+                    `${player.action}_${player.direction}`,
+                    true
+                );
+
+        });
+        this.socket.on("player_left", (id) => {
+
+            const sprite = this.otherPlayers.get(id);
+
+            if (!sprite) return;
+
+            sprite.destroy();
+
+            this.otherPlayers.delete(id);
+
+        });
         this.Actions.forEach((action:string, index:number) => {
             this.directions.forEach((dir:string, index:number) => {
                 this.anims.create({
                     key: `${action}_${dir}`,
                     frames: this.anims.generateFrameNumbers(`${action}_${dir}`),
-                    frameRate: 10,
+                    frameRate: 15,
                     repeat: -1
                 });
         
@@ -64,30 +120,48 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(time:number, delta:number) {
+        var moveX:number, moveY:number;
+        moveX = moveY = 0;
         const speed = 100;
         if(this.keys.W.isDown) {
-            this.player.y -= speed * delta / 1000;
+            moveY = -1;
             this.action = "run";
             this.direction = "up";
         }
         else if(this.keys.S.isDown) {
-            this.player.y += speed * delta / 1000;
+            moveY = 1;
             this.action = "run";
             this.direction = "down";
         }
         else if(this.keys.A.isDown) {
-            this.player.x -= speed * delta / 1000;
+            moveX = -1;
             this.action = "run";
             this.direction = "left";
         }
         else if(this.keys.D.isDown) {
-            this.player.x += speed * delta / 1000;
+            moveX = 1;
             this.action = "run";
             this.direction = "right";
         }
         else {
             this.action = "idle"
         }
+        if(this.prevState !== this.action) {
+            this.prevState = this.action;
+            this.stateChanged = true;
+        }
+        this.player.x += moveX * speed * delta / 1000;
+        this.player.y += moveY * speed * delta / 1000;
+        if(this.stateChanged) {
+            this.socket.emit("player_move", {
+                x: this.player.x,
+                y: this.player.y,
+                direction: this.direction,
+                action: this.action
+            });
+        }
+        this.stateChanged = false;
         this.player.anims.play(`${this.action}_${this.direction}`, true);
+        
     }
 }
