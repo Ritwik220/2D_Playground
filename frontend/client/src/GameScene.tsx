@@ -30,9 +30,9 @@ export default class GameScene extends Phaser.Scene {
             iceServers: [
                 { urls: "stun:stun.l.google.com:19302" },
                 {
-                    urls: "turn:global.relay.metered.ca:80",
-                    username: import.meta.env.username,
-                    credential: import.meta.env.password,
+                    urls: "turn:standard.relay.metered.ca:80",
+                    username: import.meta.env.VITE_TURN_USERNAME,
+                    credential: import.meta.env.VITE_TURN_PASSWORD
                 }
             ]
         });
