@@ -113,7 +113,8 @@ export default class GameScene extends Phaser.Scene {
 
                 if (!sprite) return;
 
-                sprite.setPosition(player.x, player.y);
+                sprite.setData("targetX", player.x);
+                sprite.setData("targetY", player.y);
 
                 sprite.anims.play(
                     `${player.action}_${player.direction}`,
@@ -243,7 +244,7 @@ export default class GameScene extends Phaser.Scene {
         }
         this.player.x += moveX * speed * delta / 1000;
         this.player.y += moveY * speed * delta / 1000;
-        if(this.stateChanged || moveX === 1 || moveY === 1) {
+        if (this.stateChanged || moveX !== 0 || moveY !== 0) {
             this.socket.emit("player_move", {
                 x: this.player.x,
                 y: this.player.y,
@@ -253,6 +254,15 @@ export default class GameScene extends Phaser.Scene {
         }
         this.stateChanged = false;
         this.player.anims.play(`${this.action}_${this.direction}`, true);
+        this.otherPlayers.forEach((sprite) => {
+            const targetX = sprite.getData("targetX");
+            const targetY = sprite.getData("targetY");
+
+            if (targetX === undefined || targetY === undefined) return;
+
+            sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
+            sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
+        });
         
     }
 }
