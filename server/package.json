@@ -1,0 +1,20 @@
+{
+  "name": "2d-playground-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "../node_modules/.bin/tsx index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -26,7 +26,11 @@ export default class GameScene extends Phaser.Scene {
     >();
 
     async createOffer(peer_id:string) {
-        const peer = new RTCPeerConnection();
+        const peer = new RTCPeerConnection({
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" }
+            ]
+        });
         this.peerConnections.set(peer_id, peer);
         this.localStream.getTracks().forEach((track) => {
             peer.addTrack(track);
@@ -78,7 +82,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        this.socket = io("http://localhost:3001");
+        this.socket = io(import.meta.env.VITE_SERVER_URL);
         this.socket.on("players", (players) => {
             players.forEach((player:any) => {
 
@@ -149,7 +153,11 @@ export default class GameScene extends Phaser.Scene {
         this.player.anims.play("idle_up", true);
 
         this.socket.on("voice_offer", async ({sender, offer})  => {
-            const peer = new RTCPeerConnection();
+            const peer = new RTCPeerConnection({
+                iceServers: [
+                    { urls: "stun:stun.l.google.com:19302" }
+                ]
+            });
             this.peerConnections.set(sender, peer);
             this.localStream.getTracks().forEach((track) => {
                 peer.addTrack(track);
