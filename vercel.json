@@ -1,16 +1,22 @@
 {
   "services": {
     "frontend": {
-      "root": "./",
+      "root": "frontend/client",
       "framework": "vite"
     },
     "backend": {
-      "root": "server/",
+      "root": "server",
       "runtime": "container",
       "entrypoint": "Dockerfile.vercel"
     }
   },
   "rewrites": [
+    {
+      "source": "/socket.io/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
     {
       "source": "/(.*)",
       "destination": {
