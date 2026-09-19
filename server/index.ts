@@ -35,12 +35,6 @@ io.on("connection", (socket) => {
         players.get(socket.id)
     );
 
-    // voiced player joined
-    socket.broadcast.emit(
-        "voiced_peer_joined",
-        socket.id,
-    )
-
     // movement
     socket.on("player_move", (data) => {
         const player = players.get(socket.id);
@@ -54,23 +48,31 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("player_moved", player);
     })
 
-    socket.on("voice_offer", ({target, offer}) => {
+
+    // voiced player joined
+    socket.broadcast.emit("voiced_peer_joined", socket.id);
+
+    socket.on("voice_offer", ({ target, offer }) => {
         io.to(target).emit("voice_offer", {
-            sender: target,
-            offer: offer
+            sender: socket.id,
+            offer
         });
-    })
+    });
 
-    socket.on("voice_answer", ({target, answer}) => {
+    socket.on("voice_answer", ({ target, answer }) => {
         io.to(target).emit("voice_answer", {
-            sender: target,
-            answer: answer
+            sender: socket.id,
+            answer
         });
-    })
+    });
 
-    socket.on("voice_ice_candidate", ({target, candidate}) => {
-        io.to(target).emit("voice_ice_candidate", {sender: target, candidate: candidate});
-    })
+    socket.on("voice_ice_candidate", ({ target, candidate }) => {
+        io.to(target).emit("voice_ice_candidate", {
+            sender: socket.id,
+            candidate
+        });
+    });
+
     // Disconnect
     socket.on("disconnect", (data) => {
         players.delete(socket.id);
