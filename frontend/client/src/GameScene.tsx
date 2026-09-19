@@ -279,7 +279,7 @@ export default class GameScene extends Phaser.Scene {
         EventBus.emit("lol", this);
     }
 
-    update(_time: number, delta: number) {
+    update(_time: number, _delta: number) {
         var moveX: number, moveY: number;
         moveX = moveY = 0;
         const speed = 100;
