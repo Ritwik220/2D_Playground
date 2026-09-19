@@ -82,7 +82,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        this.socket = io();
+        this.socket = io({
+            transports: ["websocket"]
+        });
         this.socket.on("players", (players) => {
             players.forEach((player:any) => {
 
