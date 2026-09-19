@@ -4,7 +4,7 @@ import { Socket, io } from "socket.io-client";
 
 
 export default class GameScene extends Phaser.Scene {
-    private peerConnection!: RTCPeerConnection;
+    private peerConnections = new Map<string, RTCPeerConnection>();
     private localStream!: MediaStream;
     private direction = "up";
     private prevState = "idle";
@@ -24,6 +24,36 @@ export default class GameScene extends Phaser.Scene {
         string,
         Phaser.GameObjects.Sprite
     >();
+
+    async createOffer(peer_id:string) {
+        const peer = new RTCPeerConnection();
+        this.peerConnections.set(peer_id, peer);
+        this.localStream.getTracks().forEach((track) => {
+            peer.addTrack(track);
+        })
+        peer.onicecandidate = (event) => {
+            if(event.candidate) {
+                this.socket.emit("voice_ice_candidate", {
+                    target: peer_id,
+                    candidate: event.candidate
+                });
+            }
+        }
+
+        peer.ontrack = (event) => {
+            const audio = new Audio();
+            audio.srcObject = event.streams[0];
+            audio.play();
+        }
+        const offer = await peer.createOffer();
+
+        await peer.setLocalDescription(offer);
+
+        this.socket.emit("voice_offer", {
+            target: peer_id,
+            offer
+        });
+    }
 
     constructor() {
         super("Game Scene");
@@ -118,13 +148,55 @@ export default class GameScene extends Phaser.Scene {
 
         this.player.anims.play("idle_up", true);
 
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true})
-        this.localStream = stream;
-        this.peerConnection = new RTCPeerConnection();
-        this.localStream.getTracks().forEach(track => {
-            this.peerConnection.addTrack(track, this.localStream);
+        this.socket.on("voice_offer", async ({sender, offer})  => {
+            const peer = new RTCPeerConnection();
+            this.peerConnections.set(sender, peer);
+            this.localStream.getTracks().forEach((track) => {
+                peer.addTrack(track);
+            })
+            peer.onicecandidate = (event) => {
+                if(event.candidate) {
+                    this.socket.emit("voice_ice_candidate", {
+                        target: sender,
+                        candidate: event.candidate
+                    });
+                }
+            }
+
+            peer.ontrack = (event) => {
+                const audio = new Audio();
+                audio.srcObject = event.streams[0];
+                audio.play();
+            }
+
+            await peer.setRemoteDescription(offer);
+            const answer = await peer.createAnswer();
+            await peer.setLocalDescription(answer);
+
+            this.socket.emit("voice_answer", {
+                target: sender,
+                answer
+            })
 
         })
+
+        this.socket.on("voice_answer", async ({sender, answer}) => {
+            const peer = this.peerConnections.get(sender);
+            if(!peer) return;
+            await peer.setRemoteDescription(answer);
+        })
+
+        this.socket.on("voiced_peer_joined", async (peer_id) => {
+            console.log("New voice peer: ", peer_id);
+            await this.createOffer(peer_id);
+        })
+        this.socket.on("voice_ice_candidate", async ({sender, candidate}) => {
+            const peer = this.peerConnections.get(sender);
+            if (!peer) return;
+            await peer.addIceCandidate(candidate);
+        })
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true})
+        this.localStream = stream;
         EventBus.emit("lol", this);
     }
 

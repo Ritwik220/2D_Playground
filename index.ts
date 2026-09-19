@@ -1,7 +1,6 @@
 import express, {type Request, type Response, type Express} from 'express';
 import { Server } from 'socket.io';
 import { createServer } from "http";
-import { Socket } from 'dgram';
 
 const app:Express = express();
 const httpServer = createServer(app);
@@ -28,11 +27,19 @@ io.on("connection", (socket) => {
 
     socket.emit("players", Array.from(players.values()));
 
+    // Player joined broadcast
     socket.broadcast.emit(
         "player_joined",
         players.get(socket.id)
     );
 
+    // voiced player joined
+    socket.broadcast.emit(
+        "voiced_peer_joined",
+        {
+            id:socket.id,
+        }
+    )
 
     // movement
     socket.on("player_move", (data) => {
@@ -47,7 +54,23 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("player_moved", player);
     })
 
+    socket.on("voice_offer", ({target, offer}) => {
+        io.to(target).emit("voice_offer", {
+            sender: target,
+            offer: offer
+        });
+    })
 
+    socket.on("voice_answer", ({target, answer}) => {
+        io.to(target).emit("voice_answer", {
+            sender: target,
+            answer: answer
+        });
+    })
+
+    socket.on("voice_ice_candidate", ({target, candidate}) => {
+        io.to(target).emit("voice_ice_candidate", {sender: target, candidate: candidate});
+    })
     // Disconnect
     socket.on("disconnect", (data) => {
         players.delete(socket.id);
