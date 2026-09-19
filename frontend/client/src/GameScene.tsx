@@ -28,7 +28,12 @@ export default class GameScene extends Phaser.Scene {
     async createOffer(peer_id:string) {
         const peer = new RTCPeerConnection({
             iceServers: [
-                { urls: "stun:stun.l.google.com:19302" }
+                { urls: "stun:stun.l.google.com:19302" },
+                {
+                    urls: "stun:stun.relay.metered.ca:80",
+                    username: import.meta.env.username,
+                    credential: import.meta.env.password,
+                }
             ]
         });
         this.peerConnections.set(peer_id, peer);
