@@ -20,7 +20,7 @@ export default class GameScene extends Phaser.Scene {
     private stateChanged = false;
     private socket!: Socket;
     private action = "idle";
-    private player!: Phaser.GameObjects.Sprite;
+    private player!: Phaser.Physics.Arcade.Sprite;
     private keys!: {
         W: Phaser.Input.Keyboard.Key;
         A: Phaser.Input.Keyboard.Key;
@@ -31,7 +31,7 @@ export default class GameScene extends Phaser.Scene {
     private directions = ['up', 'down', 'left', 'right'];
     private otherPlayers = new Map<
         string,
-        Phaser.GameObjects.Sprite
+        Phaser.Physics.Arcade.Sprite
     >();
 
     constructor() {
@@ -141,17 +141,17 @@ export default class GameScene extends Phaser.Scene {
 
                 if (player.id === this.socket.id) return;
 
-                const sprite = this.add.sprite(
+                const sprite = this.physics.add.sprite(
                     player.x,
                     player.y,
                     "idle_up"
                 );
-                this.physics.add.collider(this.player, player);
+                this.physics.add.collider(this.player, sprite);
                 this.otherPlayers.set(player.id, sprite);
             });
         });
         this.socket.on("player_joined", (player) => {
-            const sprite = this.add.sprite(
+            const sprite = this.physics.add.sprite(
                 player.x,
                 player.y,
                 "idle_up"
@@ -199,7 +199,7 @@ export default class GameScene extends Phaser.Scene {
 
 
 
-        this.player = this.add.sprite(
+        this.player = this.physics.add.sprite(
             400,
             300,
             "idle_up"
@@ -310,8 +310,7 @@ export default class GameScene extends Phaser.Scene {
             this.prevState = this.action;
             this.stateChanged = true;
         }
-        this.player.x += moveX * speed * delta / 1000;
-        this.player.y += moveY * speed * delta / 1000;
+        this.player.setVelocity(moveX*speed, moveY*speed);
         if (this.stateChanged || moveX !== 0 || moveY !== 0) {
             this.socket.emit("player_move", {
                 x: this.player.x,
