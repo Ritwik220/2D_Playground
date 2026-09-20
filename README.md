@@ -13,11 +13,11 @@
 
     cd server
     node index.ts
-the server should be hosted at localhost:3001
+the server should be hosted at [localhost:3001](http://localhost:3001/)
 
     cd ..
     cd frontend/client
     npm install
     npm run dev
-
+the website should be hosted at [http://localhost:5173](http://localhost:5173/)
 >Written with [StackEdit](https://stackedit.io/).
