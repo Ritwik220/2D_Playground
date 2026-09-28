@@ -13,6 +13,8 @@ const ICE_SERVERS: RTCIceServer[] = [
 ];
 
 export default class GameScene extends Phaser.Scene {
+    private joystickX = 0;
+    private joystickY = 0;
     private peerConnections = new Map<string, RTCPeerConnection>();
     private pendingCandidates = new Map<string, RTCIceCandidateInit[]>();
     private localStream!: MediaStream;
@@ -40,7 +42,7 @@ export default class GameScene extends Phaser.Scene {
         super("Game Scene");
     }
 
-        preload() {
+    preload() {
         this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
         this.Actions.forEach((action: string) => {
             this.directions.forEach((dir: string) => {
@@ -136,6 +138,10 @@ export default class GameScene extends Phaser.Scene {
     async create() {
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
+        this.joystick.on("move", (data) => {
+        this.joystickX = data.x;
+        this.joystickY = data.y;
+        });
         this.socket = io({
             transports: ["websocket"]
         });
@@ -284,72 +290,74 @@ export default class GameScene extends Phaser.Scene {
         EventBus.emit("lol", this);
     }
 
+    
     update(_time: number, _delta: number) {
         this.joystick?.update();
-        var moveX: number, moveY: number;
-        moveX = moveY = 0;
+
+        let moveX = 0;
+        let moveY = 0;
+
         const speed = 100;
+
+        // Keyboard takes priority if pressed
         if (this.keys.W.isDown) {
             moveY = -1;
-            this.action = "run";
-            this.direction = "up";
-        }
-        else if (this.keys.S.isDown) {
+        } else if (this.keys.S.isDown) {
             moveY = 1;
-            this.action = "run";
-            this.direction = "down";
-        }
-        else if (this.keys.A.isDown) {
-            moveX = -1;
-            this.action = "run";
-            this.direction = "left";
-        }
-        else if (this.keys.D.isDown) {
+        } else if (this.keys.A.isDown) {
+        moveX = -1;
+        } else if (this.keys.D.isDown) {
             moveX = 1;
-            this.action = "run";
-            this.direction = "right";
+        } else {
+        // Otherwise use joystick input
+            moveX = this.joystickX;
+            moveY = this.joystickY;
         }
-        else {
-            this.action = "idle"
-        }
-        if (this.prevState !== this.action) {
-            this.prevState = this.action;
-            this.stateChanged = true;
-        }
-        this.player.setVelocity(moveX*speed, moveY*speed);
 
-        this.joystick.on('move', (data) => {
-            // data.x and data.y are normalized between -1 and 1
-            this.stateChanged = true;
-            if(data.x == 0 && data.y == 0) {
-                this.action = "idle";
+    // Determine animation state and facing direction
+        if (moveX === 0 && moveY === 0) {
+        this.action = "idle";
+        } else {
+            this.action = "run";
+
+            if (Math.abs(moveX) > Math.abs(moveY)) {
+                this.direction = moveX > 0 ? "right" : "left";
+            } else {
+                this.direction = moveY > 0 ? "down" : "up";
             }
-            else {
-                this.action = "run";
-                if(data.x > 0) {
-                    this.direction = "right";
-                }
-                else if(data.x < 0) 
-                    this.direction = "left";
-                else if(data.y > 0) {
-                    this.direction = "down";
-                }
-                else if(data.y < 0) {
-                    this.direction = "up";
-                }
-            }
-            this.player.setVelocity(data.x * 100, data.y * 100);
-        });
-        if (this.stateChanged || moveX !== 0 || moveY !== 0) {
+        }
+
+        // Normalize diagonal movement
+        const length = Math.sqrt(moveX * moveX + moveY * moveY);
+        if (length > 1) {
+            moveX /= length;
+            moveY /= length;
+        }
+
+        this.player.setVelocity(moveX * speed, moveY * speed);
+
+        if (
+            this.prevState !== this.action ||
+            this.stateChanged ||
+            moveX !== 0 ||
+            moveY !== 0
+        ) {
             this.socket.emit("player_move", {
-                x: this.player.x,
-                y: this.player.y,
-                direction: this.direction,
-                action: this.action
+            x: this.player.x,
+            y: this.player.y,
+            direction: this.direction,
+            action: this.action
             });
         }
+
+        this.prevState = this.action;
         this.stateChanged = false;
-        this.player.anims.play(`${this.action}_${this.direction}`, true);
+
+        this.player.anims.play(
+        `${this.action}_${this.direction}`,
+        true
+        );
+
         this.otherPlayers.forEach((sprite) => {
             const targetX = sprite.getData("targetX");
             const targetY = sprite.getData("targetY");
@@ -359,6 +367,5 @@ export default class GameScene extends Phaser.Scene {
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
         });
-
     }
 }
