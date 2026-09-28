@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { EventBus } from "./EventBus";
 import { Socket, io } from "socket.io-client";
+import { VirtualJoystick } from "phaser-virtual-joystick";
 
 const ICE_SERVERS: RTCIceServer[] = [
     { urls: "stun:stun.l.google.com:19302" },
@@ -21,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
     private socket!: Socket;
     private action = "idle";
     private player!: Phaser.Physics.Arcade.Sprite;
+    private joystick!: VirtualJoystick;
     private keys!: {
         W: Phaser.Input.Keyboard.Key;
         A: Phaser.Input.Keyboard.Key;
@@ -113,25 +115,13 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
-    preload() {
-        this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
-        this.Actions.forEach((action: string) => {
-            this.directions.forEach((dir: string) => {
-                this.load.spritesheet(
-                    `${action}_${dir}`,
-                    `/Sprites/${action}/${action}_${dir}.png`,
-                    {
-                        frameWidth: 96,
-                        frameHeight: 80,
-                        endFrame: 7
-                    }
-                );
-            })
-        })
-
-    }
-
     async create() {
+        this.joystick = new VirtualJoystick({scene: this});
+        this.add.existing(this.joystick)
+        this.joystick.on('move', (data) => {
+            // data.x and data.y are normalized between -1 and 1
+            this.player.setVelocity(data.x * 200, data.y * 200);
+        });
         this.socket = io({
             transports: ["websocket"]
         });
@@ -281,6 +271,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update(_time: number, _delta: number) {
+        this.joystick?.update();
         var moveX: number, moveY: number;
         moveX = moveY = 0;
         const speed = 100;
