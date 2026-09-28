@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "phaser-virtual-joystick": "^0.3.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
