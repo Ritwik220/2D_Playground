@@ -116,11 +116,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
         this.joystick.on('move', (data) => {
             // data.x and data.y are normalized between -1 and 1
-            this.player.setVelocity(data.x * 200, data.y * 200);
+            this.player.setVelocity(data.x * 100, data.y * 100);
         });
         this.socket = io({
             transports: ["websocket"]
