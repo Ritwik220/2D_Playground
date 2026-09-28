@@ -40,6 +40,24 @@ export default class GameScene extends Phaser.Scene {
         super("Game Scene");
     }
 
+        preload() {
+        this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
+        this.Actions.forEach((action: string) => {
+            this.directions.forEach((dir: string) => {
+                this.load.spritesheet(
+                    `${action}_${dir}`,
+                    `/Sprites/${action}/${action}_${dir}.png`,
+                    {
+                        frameWidth: 96,
+                        frameHeight: 80,
+                        endFrame: 7
+                    }
+                );
+            })
+        })
+
+    }
+
     // Creates a peer connection with the shared config, common event
     // wiring (ICE candidates, remote tracks) and candidate queuing.
     private createPeerConnection(peer_id: string): RTCPeerConnection {
@@ -116,7 +134,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
         this.joystick.on('move', (data) => {
