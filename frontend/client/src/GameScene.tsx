@@ -136,10 +136,6 @@ export default class GameScene extends Phaser.Scene {
     async create() {
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
-        this.joystick.on('move', (data) => {
-            // data.x and data.y are normalized between -1 and 1
-            this.player.setVelocity(data.x * 100, data.y * 100);
-        });
         this.socket = io({
             transports: ["websocket"]
         });
@@ -321,6 +317,29 @@ export default class GameScene extends Phaser.Scene {
             this.stateChanged = true;
         }
         this.player.setVelocity(moveX*speed, moveY*speed);
+
+        this.joystick.on('move', (data) => {
+            // data.x and data.y are normalized between -1 and 1
+            this.stateChanged = true;
+            if(data.x == 0 && data.y == 0) {
+                this.action = "idle";
+            }
+            else {
+                this.action = "run";
+                if(data.x > 0) {
+                    this.direction = "right";
+                }
+                else if(data.x < 0) 
+                    this.direction = "left";
+                else if(data.y > 0) {
+                    this.direction = "down";
+                }
+                else if(data.y < 0) {
+                    this.direction = "up";
+                }
+            }
+            this.player.setVelocity(data.x * 100, data.y * 100);
+        });
         if (this.stateChanged || moveX !== 0 || moveY !== 0) {
             this.socket.emit("player_move", {
                 x: this.player.x,
