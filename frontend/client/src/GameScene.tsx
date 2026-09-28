@@ -139,8 +139,17 @@ export default class GameScene extends Phaser.Scene {
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
         this.joystick.on("move", (data) => {
-        this.joystickX = data.x;
-        this.joystickY = data.y;
+            this.joystickX = data.x;
+            this.joystickY = data.y;
+        });
+        this.input.on("pointerup", () => {
+            this.joystickX = 0;
+            this.joystickY = 0;
+        });
+
+        this.input.on("pointerupoutside", () => {
+            this.joystickX = 0;
+            this.joystickY = 0;
         });
         this.socket = io({
             transports: ["websocket"]
@@ -315,8 +324,10 @@ export default class GameScene extends Phaser.Scene {
         }
 
     // Determine animation state and facing direction
-        if (moveX === 0 && moveY === 0) {
-        this.action = "idle";
+        if (Math.abs(moveX) < 0.05 && Math.abs(moveY) < 0.05) {
+            moveX = 0;
+            moveY = 0;
+            this.action = "idle";
         } else {
             this.action = "run";
 
