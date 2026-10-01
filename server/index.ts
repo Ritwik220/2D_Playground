@@ -44,7 +44,7 @@ io.on('connection', (socket:Socket)=> {
         player.y= data.y;
         player.direction = data.direction;
         player.action = data.action;
-        socket.emit("player_moved", player);
+        socket.broadcast.emit("player_moved", player);
     })
 
     socket.on("disconnect", () => {
