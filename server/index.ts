@@ -38,6 +38,8 @@ io.on('connection', (socket:Socket)=> {
     Returns a player_moved messaqge that informs everyone that this player have moved */
     socket.on("player_move", (data) => {
         const player = players.get(socket.id);
+
+        if(!player) return;
         player.x = data.x;
         player.y= data.y;
         player.direction = data.direction;
@@ -54,5 +56,7 @@ io.on('connection', (socket:Socket)=> {
 
 
 
-httpServer.listen(port)
+httpServer.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+});
 
