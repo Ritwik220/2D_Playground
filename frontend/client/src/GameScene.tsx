@@ -13,18 +13,14 @@ const ICE_SERVERS: RTCIceServer[] = [
 ];
 
 export default class GameScene extends Phaser.Scene {
-    // Virtual joystick values
     private joystickX = 0;
     private joystickY = 0;
-
-    // Peer rtc connections
     private peerConnections = new Map<string, RTCPeerConnection>();
-    // Queuing Pending ice candidates
     private pendingCandidates = new Map<string, RTCIceCandidateInit[]>();
-    // 
     private localStream!: MediaStream;
     private direction = "up";
     private prevState = "idle";
+    private stateChanged = false;
     private socket!: Socket;
     private action = "idle";
     private player!: Phaser.Physics.Arcade.Sprite;
@@ -353,6 +349,7 @@ export default class GameScene extends Phaser.Scene {
 
         if (
             this.prevState !== this.action ||
+            this.stateChanged ||
             moveX !== 0 ||
             moveY !== 0
         ) {
@@ -365,6 +362,7 @@ export default class GameScene extends Phaser.Scene {
         }
 
         this.prevState = this.action;
+        this.stateChanged = false;
 
         this.player.anims.play(
         `${this.action}_${this.direction}`,
