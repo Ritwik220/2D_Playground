@@ -32,7 +32,7 @@ io.on('connection', (socket:Socket)=> {
     // Sending the players
     socket.emit("players", Array.from(players.values()));
     // Sending the message that informs everyone that a new player has joined
-    socket.broadcast.emit('player_joined', players.get(socket.id));
+    socket.broadcast.emit("player_joined", players.get(socket.id));
     /* Recieves a message from the frontend that informs us that the player has moved 
     It changes the data of that player to match its location, direction, etc
     Returns a player_moved messaqge that informs everyone that this player have moved */
