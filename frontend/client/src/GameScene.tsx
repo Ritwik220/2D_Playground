@@ -77,6 +77,8 @@ export default class GameScene extends Phaser.Scene {
     private createPeerConnection(peer_id:string) {
         // Creating a peer connection
         const peer = new RTCPeerConnection({iceServers: ICE_SERVERS});
+        const find_peer = this.peerConnections.get(peer_id);
+        if(find_peer) return find_peer;
         // Addidng this peer connection to the set of all the peer connections
         this.peerConnections.set(peer_id, peer)
 
