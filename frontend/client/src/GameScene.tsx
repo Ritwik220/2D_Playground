@@ -84,6 +84,45 @@ export default class GameScene extends Phaser.Scene {
         this.localStream.getTracks().forEach((track) => {
             peer.addTrack(track, this.localStream);
         })
+
+        // Gathering the ice candidates
+        peer.onicecandidate = (event) => {
+            if(event.candidate) {
+                this.socket.emit('voice_ice_candidate', {
+                    target: peer_id,
+                    candidate: event.candidate
+                })
+            }
+        }
+
+        // Playing the audio stream recieved
+        peer.ontrack = (event) => {
+            const audio = new Audio();
+            audio.srcObject = event.streams[0];
+            audio.play().catch((err) => {
+                console.log(`Failed to play audio from ${peer_id}. Error: ${err}`);
+            })
+        }
+
+        // Checking if the connection failed or close so that peer can be removed when its time is due
+        peer.onconnectionstatechange= () => {
+            console.log("Peer: "+peer_id + " connection "+peer.connectionState);
+            if(peer.connectionState == 'failed' || peer.connectionState == 'closed') {
+                this.cleanupPeer(peer_id);
+            }
+        }
+
+        return peer;
+    }
+
+    // For removing peer connections taht have closed
+    private cleanupPeer(peer_id: string) {
+        const peer = this.peerConnections.get(peer_id);
+        if(peer) {
+            peer.close();
+            this.peerConnections.delete(peer_id);
+        }
+        this.pendingCandidates.delete(peer_id);
     }
     // Creates a peer connection with the shared config, common event
     // wiring (ICE candidates, remote tracks) and candidate queuing.
@@ -131,32 +170,49 @@ export default class GameScene extends Phaser.Scene {
     //     this.pendingCandidates.delete(peer_id);
     // }
 
-    // private async flushPendingCandidates(peer_id: string, peer: RTCPeerConnection) {
-    //     const queued = this.pendingCandidates.get(peer_id);
-    //     if (!queued || queued.length === 0) return;
+    private async flushPendingCandidates(peer_id: string, peer: RTCPeerConnection) {
+        const queued = this.pendingCandidates.get(peer_id);
+        if (!queued || queued.length === 0) return;
 
-    //     for (const candidate of queued) {
-    //         try {
-    //             await peer.addIceCandidate(candidate);
-    //         } catch (err) {
-    //             console.error(`Failed to add queued ICE candidate for ${peer_id}:`, err);
-    //         }
+        for (const candidate of queued) {
+            try {
+                await peer.addIceCandidate(candidate);
+            } catch (err) {
+                console.error(`Failed to add queued ICE candidate for ${peer_id}:`, err);
+            }
+        }
+        this.pendingCandidates.delete(peer_id);
+    }
+
+    // async createOffer(peer_id: string) {
+    //     try {
+    //         const peer = this.createPeerConnection(peer_id);
+    //         const offer = await peer.createOffer();
+    //         await peer.setLocalDescription(offer);
+
+    //         this.socket.emit("voice_offer", {
+    //             target: peer_id,
+    //             offer
+    //         });
+    //     } catch (err) {
+    //         console.error(`Failed to create offer for ${peer_id}:`, err);
     //     }
-    //     this.pendingCandidates.delete(peer_id);
     // }
-
-    async createOffer(peer_id: string) {
+    async createOffer(peer_id:string) {
         try {
             const peer = this.createPeerConnection(peer_id);
             const offer = await peer.createOffer();
+            // Store the offer locally
             await peer.setLocalDescription(offer);
 
-            this.socket.emit("voice_offer", {
+            // emitting a message that informs about the peer connection offer
+            this.socket.emit('voice_offer', {
                 target: peer_id,
                 offer
             });
-        } catch (err) {
-            console.error(`Failed to create offer for ${peer_id}:`, err);
+        }
+        catch(err) {
+            console.log(`Failed to create offer for ${peer_id}: `, err);
         }
     }
 
@@ -287,7 +343,37 @@ export default class GameScene extends Phaser.Scene {
         //         console.error(`Failed to handle voice_offer from ${sender}:`, err);
         //     }
         // });
+        // This is triggered when someone gets a voice offer
+        this.socket.on("voice_offer", async ({sender, offer}) => {
+            try{
+                const peer = this.createPeerConnection(sender);
+                // Stores the offer as the remote description
+                await peer.setRemoteDescription(offer);
+                // remove the pending ice candidates as a suitable path has been found
+                this.flushPendingCandidates(sender, peer);
+                
+                const answer = await peer.createAnswer();
+                // Stores the answer as the local description
+                await peer.setLocalDescription(answer);
+            } catch(err) {
+                console.log(`Failed to generate answer from ${sender}:`, err);
+            }
+        })
 
+        // This is the triggered on the comp that send the offer when an answer is recieved
+        this.socket.on('voice_answer', async({sender, answer}) => {
+            try {
+                const peer = this.peerConnections.get(sender);
+                if(!peer) return;
+                // Settign the remote decription as the answer
+                await peer.setRemoteDescription(answer);
+                // flushing the pending cadidates since a suitable path has been found
+                await this.flushPendingCandidates(sender, peer);
+            }
+            catch(err) {
+                console.log(`Failed to get answer from ${sender}:`, err);
+            }
+        })
         // this.socket.on("voice_answer", async ({ sender, answer }) => {
         //     try {
         //         const peer = this.peerConnections.get(sender);
@@ -299,6 +385,21 @@ export default class GameScene extends Phaser.Scene {
         //     }
         // });
 
+        this.socket.on("voice_ice_candidate", async ({ sender, candidate}) => {
+            const peer = this.peerConnections.get(sender);
+
+            if(!peer || !peer.remoteDescription) {
+                const queue = this.pendingCandidates.get(sender)?? [];
+                queue?.push(candidate);
+                this.pendingCandidates.set(sender, queue);
+                return;
+            }
+            try {
+                await peer.addIceCandidate(candidate);
+            } catch(err) {
+                console.log(`Failed to add ICE candidate from ${sender}:`, err);
+            }
+        })
         // this.socket.on("voice_ice_candidate", async ({ sender, candidate }) => {
         //     const peer = this.peerConnections.get(sender);
 
@@ -318,15 +419,15 @@ export default class GameScene extends Phaser.Scene {
         //     }
         // });
 
-        // try {
-        //     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        //     this.localStream = stream;
-        //     // Only announce voice readiness once we actually have the stream,
-        //     // so peers never try to attach tracks before localStream exists.
-        //     this.socket.emit("voice_ready");
-        // } catch (err) {
-        //     console.error("Failed to get microphone access:", err);
-        // }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.localStream = stream;
+            // Only announce voice readiness once we actually have the stream,
+            // so peers never try to attach tracks before localStream exists.
+            this.socket.emit("voice_ready");
+        } catch (err) {
+            console.error("Failed to get microphone access:", err);
+        }
 
         EventBus.emit("lol", this);
     }
