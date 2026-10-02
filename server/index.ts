@@ -16,7 +16,7 @@ const players = new Map();
 // A peer is only offered to (or offers to) others once both sides are ready,
 // which avoids the race where an offer arrives before localStream exists.
 const voiceReadyPeers = new Set<string>();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 
 io.on("connection", (socket) => {
