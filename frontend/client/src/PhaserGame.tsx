@@ -21,6 +21,10 @@ export default function PhaserGame() {
                     debug: false             // Toggle to true to see bounding boxes
                 }
             },
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            },
             scene: GameScene,
 
         };
