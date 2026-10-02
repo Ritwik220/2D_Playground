@@ -1,60 +1,58 @@
-import express, { Request, Response } from 'express';
-import {Server} from "socket.io";
-import {createServer} from "http";
-import type {Socket} from "socket.io";
+import express, { type Request, type Response, type Express } from 'express';
+import { Server } from 'socket.io';
+import { createServer } from "http";
 
-
-const port = process.env.PORT || 3000;
-const server = express();
-const voiceReadyPeers = new Set<string>();
-
-const httpServer = createServer(server);
+const app: Express = express();
+const httpServer = createServer(app);
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 const io = new Server(httpServer, {
     cors: {
         origin: true
     }
 })
 
-// Used to map all the players
 const players = new Map();
+// Tracks which sockets have their mic ready and have announced voice_ready.
+// A peer is only offered to (or offers to) others once both sides are ready,
+// which avoids the race where an offer arrives before localStream exists.
+const voiceReadyPeers = new Set<string>();
+const port = process.env.PORT || 3000;
 
 
-io.on('connection', (socket:Socket)=> {
-    console.log("Connected to socket : ", socket.id);
-    // Adding the player in the scene, the initial position is kept as 300, 400 as of now
+io.on("connection", (socket) => {
+    // setup
+    console.log("Player connected", socket.id);
+
     players.set(socket.id, {
         id: socket.id,
-        x: 300,
-        y: 400,
-        action: "idle",
-        direction: "up"
-    });
+        x: 400,
+        y: 300,
+        direction: "up",
+        action: "idle"
+    })
 
-    // Sending the players
     socket.emit("players", Array.from(players.values()));
-    // Sending the message that informs everyone that a new player has joined
-    socket.broadcast.emit("player_joined", players.get(socket.id));
-    /* Recieves a message from the frontend that informs us that the player has moved 
-    It changes the data of that player to match its location, direction, etc
-    Returns a player_moved messaqge that informs everyone that this player have moved */
+
+    // Player joined broadcast
+    socket.broadcast.emit(
+        "player_joined",
+        players.get(socket.id)
+    );
+
+    // movement
     socket.on("player_move", (data) => {
         const player = players.get(socket.id);
 
-        if(!player) return;
+        if (!player) return;
+
         player.x = data.x;
-        player.y= data.y;
+        player.y = data.y;
         player.direction = data.direction;
         player.action = data.action;
         socket.broadcast.emit("player_moved", player);
     })
 
-     // Voice readiness handshake.
-    // When a client's mic is ready, it tells us; we hand it the list of
-    // peers who are already ready (guaranteed to have their own localStream
-    // set), and the new client creates offers to those peers. We do NOT
-    // proactively tell existing peers about the new one, because that's
-    // exactly the race that used to break voice chat.
-   // Voice readiness handshake.
+    // Voice readiness handshake.
     // When a client's mic is ready, it tells us; we hand it the list of
     // peers who are already ready (guaranteed to have their own localStream
     // set), and the new client creates offers to those peers. We do NOT
