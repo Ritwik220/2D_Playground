@@ -6,6 +6,7 @@ import type {Socket} from "socket.io";
 
 const port = process.env.PORT || 3000;
 const server = express();
+const voiceReadyPeers = new Set<string>();
 
 const httpServer = createServer(server);
 const io = new Server(httpServer, {
@@ -46,6 +47,38 @@ io.on('connection', (socket:Socket)=> {
         player.action = data.action;
         socket.broadcast.emit("player_moved", player);
     })
+
+     // Voice readiness handshake.
+    // When a client's mic is ready, it tells us; we hand it the list of
+    // peers who are already ready (guaranteed to have their own localStream
+    // set), and the new client creates offers to those peers. We do NOT
+    // proactively tell existing peers about the new one, because that's
+    // exactly the race that used to break voice chat.
+    socket.on("voice_ready", () => {
+        socket.emit("voice_ready_peers", Array.from(voiceReadyPeers));
+        voiceReadyPeers.add(socket.id);
+    });
+
+    socket.on("voice_offer", ({ target, offer }) => {
+        io.to(target).emit("voice_offer", {
+            sender: socket.id,
+            offer
+        });
+    });
+
+    socket.on("voice_answer", ({ target, answer }) => {
+        io.to(target).emit("voice_answer", {
+            sender: socket.id,
+            answer
+        });
+    });
+
+    socket.on("voice_ice_candidate", ({ target, candidate }) => {
+        io.to(target).emit("voice_ice_candidate", {
+            sender: socket.id,
+            candidate
+        });
+    });
 
     socket.on("disconnect", () => {
         players.delete(socket.id);

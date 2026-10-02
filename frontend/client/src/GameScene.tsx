@@ -350,7 +350,7 @@ export default class GameScene extends Phaser.Scene {
                 // Stores the offer as the remote description
                 await peer.setRemoteDescription(offer);
                 // remove the pending ice candidates as a suitable path has been found
-                this.flushPendingCandidates(sender, peer);
+                await this.flushPendingCandidates(sender, peer);
                 
                 const answer = await peer.createAnswer();
                 // Stores the answer as the local description
