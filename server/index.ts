@@ -54,6 +54,12 @@ io.on('connection', (socket:Socket)=> {
     // set), and the new client creates offers to those peers. We do NOT
     // proactively tell existing peers about the new one, because that's
     // exactly the race that used to break voice chat.
+   // Voice readiness handshake.
+    // When a client's mic is ready, it tells us; we hand it the list of
+    // peers who are already ready (guaranteed to have their own localStream
+    // set), and the new client creates offers to those peers. We do NOT
+    // proactively tell existing peers about the new one, because that's
+    // exactly the race that used to break voice chat.
     socket.on("voice_ready", () => {
         socket.emit("voice_ready_peers", Array.from(voiceReadyPeers));
         voiceReadyPeers.add(socket.id);
@@ -80,16 +86,15 @@ io.on('connection', (socket:Socket)=> {
         });
     });
 
+    // Disconnect
     socket.on("disconnect", () => {
         players.delete(socket.id);
+        voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
     })
+
 })
-
-
-
 httpServer.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
-
