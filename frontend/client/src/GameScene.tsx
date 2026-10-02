@@ -355,6 +355,11 @@ export default class GameScene extends Phaser.Scene {
                 const answer = await peer.createAnswer();
                 // Stores the answer as the local description
                 await peer.setLocalDescription(answer);
+
+                this,this.socket.emit('voice_answer', {
+                    target: sender,
+                    answer
+                })
             } catch(err) {
                 console.log(`Failed to generate answer from ${sender}:`, err);
             }
