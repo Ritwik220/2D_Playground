@@ -356,7 +356,7 @@ export default class GameScene extends Phaser.Scene {
                 // Stores the answer as the local description
                 await peer.setLocalDescription(answer);
 
-                this,this.socket.emit('voice_answer', {
+                this.socket.emit('voice_answer', {
                     target: sender,
                     answer
                 })
