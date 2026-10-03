@@ -240,7 +240,23 @@ app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
 });
 /* --------------------------------------- POST REQUESTS ---------------------------------------------------*/
 app.post('/api/chats/:senderId/:receiverId', async (req, res) => {
+    const senderId = Number(req.params.senderId);
+    const receiverId = Number(req.params.receiverId);
+    const { message } = req.body;
+    try {
+        const result = await db.query(`INSERT INTO chat_messages
+                      (sender_id, receiver_id, message)
+                      VALUES ($1, $2, $3) RETURNING id, sender_id, receiver_id, message, created_at`,
+                      [senderId, receiverId, message]);
+        res.status(201).json(result.rows[0]);
+    }
+    catch(error) {
+        console.error(error);
 
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
 })
 
 
