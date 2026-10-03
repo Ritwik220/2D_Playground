@@ -194,7 +194,34 @@ app.post('/api/users/', async (req, res) => {
         });
     }
 })
+/* --------------------------------------- PATCH REQUESTS ---------------------------------------------------*/
+app.patch('/api/users/:id/position', async (req, res) => {
+    const userId = req.params.id;
+    const { x, y } = req.body;
+    try {
+        const result = await db.query(
+            `UPDATE users
+             SET save_spot = $1
+             WHERE id = $2
+             RETURNING id, save_spot`,
+            [{ x, y }, userId]
+        );
 
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "User not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+    } catch(error) {
+        console.error(error);
+
+        res.status(500).json({
+            erro: "Database error"
+        });
+    }
+})
 /*
 CREATE TABLE
 metaverse=# CREATE TABLE chat_messages (
