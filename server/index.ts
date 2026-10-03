@@ -1,6 +1,19 @@
 import express, { type Request, type Response, type Express } from 'express';
 import { Server } from 'socket.io';
 import { createServer } from "http";
+import pg, {Client} from "pg";
+
+// Loading env file
+process.loadEnvFile();
+// database
+const client = new Client({
+    user: 'postgres',
+    password: process.env.POSTGRES_PASSWORD,
+    host: 'localhost',
+    port: 5334,
+    database: 'metaverse',
+})
+
 
 const app: Express = express();
 const httpServer = createServer(app);
