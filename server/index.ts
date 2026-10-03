@@ -1,19 +1,19 @@
 import express, { type Request, type Response, type Express } from 'express';
 import { Server } from 'socket.io';
 import { createServer } from "http";
-import pg, {Client} from "pg";
+import db from "./db.js";
+import "dotenv/config";
 
-// Loading env file
-process.loadEnvFile();
-// database
-const client = new Client({
-    user: 'postgres',
-    password: process.env.POSTGRES_PASSWORD,
-    host: 'localhost',
-    port: 5334,
-    database: 'metaverse',
-})
+async function testDB() {
+    try {
+        const result = await db.query("SELECT NOW()");
+        console.log("Database connected:", result.rows[0]);
+    } catch (err) {
+        console.error("Database connection failed:", err);
+    }
+}
 
+testDB();
 
 const app: Express = express();
 const httpServer = createServer(app);

@@ -8,6 +8,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "pg": "^8.23.1",
     "socket.io": "^4.8.3"
