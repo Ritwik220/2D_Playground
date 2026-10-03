@@ -106,6 +106,85 @@ io.on("connection", (socket) => {
     })
 
 })
+
+
+// api calls
+/*
+metaverse=# CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    user_name VARCHAR(30) UNIQUE NOT NULL,
+    display_name VARCHAR(50) NOT NULL,
+    password_hash TEXT NOT NULL,
+    save_spot JSONB DEFAULT '{"x": 400, "y": 300}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE
+metaverse=# CREATE TABLE chat_messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL REFERENCES users(id),
+    receiver_id INTEGER NOT NULL REFERENCES users(id),
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+*/
+
+
+// all users
+app.get("/api/users/", async (req, res) => {
+    try {
+        const result = await db.query(
+            `SELECT id, user_name, display_name, save_spot
+             FROM users`
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "No users found"
+            });
+        }
+
+        res.json(result.rows);
+    }
+    catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
+});
+
+// specific user
+app.get("/api/users/:id", async (req, res) => {
+    const userId = Number(req.params.id);
+
+    try {
+        const result = await db.query(
+            `SELECT id, user_name, display_name, save_spot
+             FROM users
+             WHERE id = $1`,
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "User not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+    }
+    catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
+});
+
+
+
 httpServer.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
