@@ -118,14 +118,6 @@ metaverse=# CREATE TABLE users (
     save_spot JSONB DEFAULT '{"x": 400, "y": 300}'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE TABLE
-metaverse=# CREATE TABLE chat_messages (
-    id SERIAL PRIMARY KEY,
-    sender_id INTEGER NOT NULL REFERENCES users(id),
-    receiver_id INTEGER NOT NULL REFERENCES users(id),
-    message TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
 */
 
 
@@ -173,6 +165,48 @@ app.get("/api/users/:id", async (req, res) => {
         }
 
         res.json(result.rows[0]);
+    }
+    catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
+});
+/*
+CREATE TABLE
+metaverse=# CREATE TABLE chat_messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL REFERENCES users(id),
+    receiver_id INTEGER NOT NULL REFERENCES users(id),
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+*/
+
+// chat messages of 2 users
+app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
+    const senderId = Number(req.params.senderId);
+    const receiverId = Number(req.params.receiverId);
+
+    try {
+        const result = await db.query(
+            `SELECT id, sender_id, receiver_id, message, created_at
+             FROM chat_messages
+             WHERE (sender_id = $1 AND receiver_id = $2)
+                OR (sender_id = $2 AND receiver_id = $1)
+             ORDER BY created_at ASC`,
+            [senderId, receiverId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "No messages found"
+            });
+        }
+
+        res.json(result.rows);
     }
     catch (error) {
         console.error(error);
