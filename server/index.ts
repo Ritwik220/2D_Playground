@@ -120,7 +120,7 @@ metaverse=# CREATE TABLE users (
 );
 */
 
-
+/* ------------------------------------------GET REQUESTS---------------------------------------------------*/
 // all users
 app.get("/api/users/", async (req, res) => {
     try {
@@ -174,6 +174,27 @@ app.get("/api/users/:id", async (req, res) => {
         });
     }
 });
+/* --------------------------------------- POST REQUESTS ---------------------------------------------------*/
+app.post('/api/users/', async (req, res) => {
+    const { userName, displayName, password } = req.body;
+
+    try {
+        const result = await db.query(`INSERT INTO users
+        (user_name, display_name, password_hash)
+        VALUES ($1, $2, $3)
+        RETURNING id, user_name, display_name, save_spot`,
+            [userName, displayName, password]);
+        res.status(201).json(result.rows[0]);
+    }
+    catch(error) {
+        console.error(error);
+
+        res.status(500).json({
+            erro: "Database error"
+        });
+    }
+})
+
 /*
 CREATE TABLE
 metaverse=# CREATE TABLE chat_messages (
@@ -186,6 +207,7 @@ metaverse=# CREATE TABLE chat_messages (
 */
 
 // chat messages of 2 users
+/* ------------------------------------------GET REQUESTS---------------------------------------------------*/
 app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
     const senderId = Number(req.params.senderId);
     const receiverId = Number(req.params.receiverId);
@@ -216,6 +238,10 @@ app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
         });
     }
 });
+/* --------------------------------------- POST REQUESTS ---------------------------------------------------*/
+app.post('/api/chats/:senderId/:receiverId', async (req, res) => {
+
+})
 
 
 
