@@ -14,4 +14,3 @@ db.on("error", (err) => {
 
 })
 export default db;
-
