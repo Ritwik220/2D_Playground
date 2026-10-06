@@ -107,6 +107,11 @@ io.on("connection", (socket) => {
 
 })
 
+// Login and authentication
+app.get("/", (res, req) => {
+    
+})
+
 
 // api calls
 /*

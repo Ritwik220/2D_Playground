@@ -1,5 +1,8 @@
 import {useState} from "react";
 
+
+const url = window.location.href;
+
 export function RegisterCard() {
     const [formData, setFormData] = useState({
   username: '',
@@ -93,27 +96,48 @@ export default function LoginCard() {
   password: ''
 });
 
-    const handleChange = (e) => {
+    const handleChange = (e:any) => {
         const {name, value} = e.target;
         setFormData((prev) => ({ ...prev, [name]: value})) 
     }
-    const handleSubmit = (e) => {
-    e.preventDefault(); // Prevents full page reload
-    console.log("Submitted Data:", formData);
-  };
+    const handleSubmit = async (e:any) => {
+        e.preventDefault(); // Prevents full page reload
+        // console.log("Submitted Data:", formData);
+        console.log("In handle submit.\n");
+        try{
+            const response = await fetch(url+"auth/login/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" // Readies the server for json data
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if(response.ok) {
+                console.log("Form data submitted lol");
+                console.log(response.json);  
+            }
+            else {
+                console.log("Submission failed");
+            }
+        }
+        catch(err) {
+            console.log("Error at form data post: ", err);
+        } 
+    };
 
 
     return (
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+    <div class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8">
     <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h2>
-      <p class="text-sm text-gray-500">Please enter your details to sign in</p>
+      <h2 class="text-3xl font-bold text-gray-100 mb-2">Welcome Back</h2>
+      <p class="text-sm text-white">Please enter your details to sign in</p>
     </div>
 
     <form class="space-y-6" onSubmit={handleSubmit}>
       <div>
-        <label for="Username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+        <label for="Username" class="block text-sm font-medium text-white mb-2">Username</label>
         <input 
           type="text" 
           id="username" 
@@ -128,7 +152,7 @@ export default function LoginCard() {
 
       <div>
         <div class="flex justify-between items-center mb-2">
-          <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+          <label for="password" class="text-sm font-medium text-white">Password</label>
           <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Forgot password?</a>
         </div>
         <input 
