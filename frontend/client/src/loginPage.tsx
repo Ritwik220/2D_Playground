@@ -146,7 +146,7 @@ export default function LoginCard() {
           required
           value={formData.username} 
           onChange={handleChange}
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800 placeholder-gray-400"
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 
@@ -163,7 +163,7 @@ export default function LoginCard() {
           onChange={handleChange}
           value={formData.password}
           required
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800 placeholder-gray-400"
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 

@@ -2,7 +2,10 @@ import express, { type Request, type Response, type Express } from 'express';
 import { Server } from 'socket.io';
 import { createServer } from "http";
 import db from "./db.js";
+import bcrypt from 'bcryptjs';
 import "dotenv/config";
+
+const hash = 10;
 
 async function testDB() {
     try {
@@ -12,6 +15,11 @@ async function testDB() {
         console.error("Database connection failed:", err);
     }
 }
+
+async function hashPassword(password: string) :Promise<string> {
+    return await bcrypt.hash(password, hash);
+}
+
 
 testDB();
 
@@ -106,10 +114,37 @@ io.on("connection", (socket) => {
     })
 
 })
+/*
+metaverse=# CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    user_name VARCHAR(30) UNIQUE NOT NULL,
+    display_name VARCHAR(50) NOT NULL,
+    password_hash TEXT NOT NULL,
+    save_spot JSONB DEFAULT '{"x": 400, "y": 300}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+*/
 
 // Login and authentication
-app.get("/", (res, req) => {
-    
+app.get("/auth/login/", (req, res) => {
+    const data = req.body;
+    const username = data.username;
+    const password = data.password;
+
+    // doing somthing wrong :)
+    console.log(username, password);
+})
+
+app.get("/auth/register/", async (req, res) => {
+    const data = req.body;
+    const username = data.username;
+    const password = data.password;
+    const displayName = data.displayName;
+    // Lets do something definitely not safe for shits and giggles lol
+    console.log(username, password, displayName);
+    const hashedpassword = await hashPassword(password);
+    db.query(`INSERT INTO users (user_name, password, display_name) VALUES (${username}, ${hashedpassword}, ${displayName})`);
+
 })
 
 

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "pg": "^8.23.1",
     "phaser-virtual-joystick": "^0.3.1",
     "socket.io-client": "^4.8.4"
