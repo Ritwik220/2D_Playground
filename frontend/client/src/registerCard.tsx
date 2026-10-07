@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+const url = "http://localhost:3000";
 
-export function RegisterCard() {
+export default function RegisterCard() {
     const [formData, setFormData] = useState({
   username: '',
+  display_name: '',
   password: ''
 });
 
@@ -12,10 +14,32 @@ export function RegisterCard() {
         const {name, value} = e.target;
         setFormData((prev) => ({ ...prev, [name]: value})) 
     }
-    const handleSubmit = (e) => {
-    e.preventDefault(); // Prevents full page reload
-    console.log("Submitted Data:", formData);
-  };
+    const handleSubmit = async (e:any) => {
+        e.preventDefault(); // Prevents full page reload
+        // console.log("Submitted Data:", formData);
+        console.log("In handle submit.\n");
+        try{
+            const response = await fetch(url + "/auth/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json" // Readies the server for json data
+                },
+                credentials: "include",
+                body: JSON.stringify(formData)
+            });
+
+            if(response.ok) {
+                console.log("Form data submitted lol");
+                console.log(response.json);  
+            }
+            else {
+                console.log("Submission failed");
+            }
+        }
+        catch(err) {
+            console.log("Error at form data post: ", err);
+        } 
+    };
 
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -48,7 +72,7 @@ export function RegisterCard() {
           name="display_name"
           placeholder="aditya_is_gay" 
           required
-          value={formData.username} 
+          value={formData.display_name} 
           onChange={handleChange}
           class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />

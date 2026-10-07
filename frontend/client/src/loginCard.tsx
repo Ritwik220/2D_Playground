@@ -1,6 +1,8 @@
 import { useState } from "react";
 import {Link} from "react-router-dom" 
 
+const url = "http://localhost:3000";
+
 export default function LoginCard() {
     const [isRegister, setIsRegister] = useState(false);
     const [formData, setFormData] = useState({
@@ -88,7 +90,7 @@ export default function LoginCard() {
           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition duration-200"
         />
         <label htmlFor="remember-me" class="ml-2 block text-sm text-gray-600 select-none">
-          Remember me for 30 days
+          Remember me
         </label>
       </div>
 

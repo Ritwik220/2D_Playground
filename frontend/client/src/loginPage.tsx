@@ -1,9 +1,9 @@
-import {useState} from "react";
+// import {useState} from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import LoginCard from "./loginCard";
 import { RegisterCard } from "./registerCard";
 
-const url = 'http://localhost:3000/';
+// const url = 'http://localhost:3000/';
 
 
 export default function LoginPage() {

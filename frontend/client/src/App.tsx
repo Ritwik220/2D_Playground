@@ -1,8 +1,8 @@
 import PhaserGame from "./PhaserGame";
-import LoginCard from "./loginPage.tsx"
+import LoginPage from "./loginPage.tsx"
 
 
 export default function App() {
-  return <LoginCard/>;
+  return <LoginPage/>;
   return <PhaserGame/>;
 }

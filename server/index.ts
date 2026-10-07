@@ -155,11 +155,11 @@ app.post("/auth/register/", async (req, res) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;
-    const displayName = data.displayName;
+    const displayName = data.display_name;
     // Lets do something definitely not safe for shits and giggles lol
     console.log(username, password, displayName);
     const hashedpassword = await hashPassword(password);
-    db.query(`INSERT INTO users (user_name, password, display_name) VALUES (${username}, ${hashedpassword}, ${displayName})`);
+    // db.query(`INSERT INTO users (user_name, password, display_name) VALUES (${username}, ${hashedpassword}, ${displayName})`);
 
 })
 
