@@ -12,8 +12,10 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "phaser-virtual-joystick": "^0.3.1",
+    "r": "^0.0.5",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4",
     "socket.io-client": "^4.8.4",
     "tailwindcss": "^4.3.3"
   },
