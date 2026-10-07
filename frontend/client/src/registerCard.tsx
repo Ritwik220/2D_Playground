@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 
 export function RegisterCard() {
@@ -17,16 +18,16 @@ export function RegisterCard() {
   };
 
     return (
-    <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-800 mb-2">Register</h2>
-      <p class="text-sm text-gray-500">Please enter your details to sign in</p>
+        <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+  <div className="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8">
+    <div className="text-center mb-8">
+      <h2 className="text-3xl font-bold text-gray-100 mb-2">Register</h2>
+      <p className="text-sm text-white">Please enter your details to sign in</p>
     </div>
 
     <form class="space-y-6" onSubmit={handleSubmit}>
       <div>
-        <label for="Username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+        <label htmlFor="Username" class="block text-sm font-medium text-white mb-2">Username</label>
         <input 
           type="text" 
           id="username" 
@@ -35,13 +36,27 @@ export function RegisterCard() {
           required
           value={formData.username} 
           onChange={handleChange}
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800 placeholder-gray-400"
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="display_name" class="block text-sm font-medium text-white mb-2">Display Name</label>
+        <input 
+          type="text" 
+          id="display_name" 
+          name="display_name"
+          placeholder="aditya_is_gay" 
+          required
+          value={formData.username} 
+          onChange={handleChange}
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 
       <div>
         <div class="flex justify-between items-center mb-2">
-          <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+          <label htmlFor="password" class="text-sm font-medium text-white">Password</label>
           <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Forgot password?</a>
         </div>
         <input 
@@ -52,7 +67,7 @@ export function RegisterCard() {
           onChange={handleChange}
           value={formData.password}
           required
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-800 placeholder-gray-400"
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 
@@ -63,23 +78,23 @@ export function RegisterCard() {
           name="remember-me"
           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition duration-200"
         />
-        <label for="remember-me" class="ml-2 block text-sm text-gray-600 select-none">
-          Remember me for 30 days
+        <label htmlFor="remember-me" class="ml-2 block text-sm text-gray-600 select-none">
+          Remember me
         </label>
       </div>
 
       <button 
         type="submit" 
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
       >
         Sign In
       </button>
     </form>
-
-    <p className="text-center text-sm text-gray-600 mt-8">
-      Don't have an account? 
-      <a href="#" onClick={RegisterCard} className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Sign up</a>
+     <p class="text-center text-sm text-gray-600 mt-8">
+      Already have an account? 
+      <Link to="/" class="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Login</Link>
     </p>
+
   </div>
 </div>
     )
