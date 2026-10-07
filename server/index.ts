@@ -1,9 +1,10 @@
 import express, { type Request, type Response, type Express } from 'express';
 import { Server } from 'socket.io';
-import { createServer } from "http";
+import { createServer, METHODS } from "http";
 import db from "./db.js";
 import bcrypt from 'bcryptjs';
 import "dotenv/config";
+import cors from "cors";
 
 const hash = 10;
 
@@ -26,6 +27,16 @@ testDB();
 const app: Express = express();
 const httpServer = createServer(app);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+// for cors
+app.use(cors({
+  origin: frontendUrl, 
+  methods: ["GET", "POST", "PATCH"],
+  credentials: true
+}));
+
+app.use(express.json());
+
+
 const io = new Server(httpServer, {
     cors: {
         origin: true
@@ -126,16 +137,21 @@ metaverse=# CREATE TABLE users (
 */
 
 // Login and authentication
-app.get("/auth/login/", (req, res) => {
+app.post("/auth/login/", (req, res) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;
 
     // doing somthing wrong :)
     console.log(username, password);
+
+    res.json({
+        message: "Login request received"
+    });
 })
 
-app.get("/auth/register/", async (req, res) => {
+
+app.post("/auth/register/", async (req, res) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;

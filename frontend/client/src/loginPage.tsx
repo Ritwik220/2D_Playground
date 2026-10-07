@@ -1,7 +1,7 @@
 import {useState} from "react";
 
 
-const url = window.location.href;
+const url = 'http://localhost:3000/';
 
 export function RegisterCard() {
     const [formData, setFormData] = useState({
@@ -72,15 +72,15 @@ export function RegisterCard() {
 
       <button 
         type="submit" 
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
       >
         Sign In
       </button>
     </form>
 
-    <p class="text-center text-sm text-gray-600 mt-8">
+    <p className="text-center text-sm text-gray-600 mt-8">
       Don't have an account? 
-      <a href="#" onClick={RegisterCard} class="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Sign up</a>
+      <a href="#" onClick={RegisterCard} className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Sign up</a>
     </p>
   </div>
 </div>
@@ -105,11 +105,12 @@ export default function LoginCard() {
         // console.log("Submitted Data:", formData);
         console.log("In handle submit.\n");
         try{
-            const response = await fetch(url+"auth/login/", {
+            const response = await fetch(url + "auth/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json" // Readies the server for json data
                 },
+                credentials: "include",
                 body: JSON.stringify(formData)
             });
 
@@ -128,16 +129,16 @@ export default function LoginCard() {
 
 
     return (
-    <div class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-100 mb-2">Welcome Back</h2>
-      <p class="text-sm text-white">Please enter your details to sign in</p>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+  <div className="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8">
+    <div className="text-center mb-8">
+      <h2 className="text-3xl font-bold text-gray-100 mb-2">Welcome Back</h2>
+      <p className="text-sm text-white">Please enter your details to sign in</p>
     </div>
 
     <form class="space-y-6" onSubmit={handleSubmit}>
       <div>
-        <label for="Username" class="block text-sm font-medium text-white mb-2">Username</label>
+        <label htmlFor="Username" class="block text-sm font-medium text-white mb-2">Username</label>
         <input 
           type="text" 
           id="username" 
@@ -152,7 +153,7 @@ export default function LoginCard() {
 
       <div>
         <div class="flex justify-between items-center mb-2">
-          <label for="password" class="text-sm font-medium text-white">Password</label>
+          <label htmlFor="password" class="text-sm font-medium text-white">Password</label>
           <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Forgot password?</a>
         </div>
         <input 
@@ -174,7 +175,7 @@ export default function LoginCard() {
           name="remember-me"
           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition duration-200"
         />
-        <label for="remember-me" class="ml-2 block text-sm text-gray-600 select-none">
+        <label htmlFor="remember-me" class="ml-2 block text-sm text-gray-600 select-none">
           Remember me for 30 days
         </label>
       </div>
