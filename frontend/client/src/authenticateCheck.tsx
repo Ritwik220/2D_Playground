@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import PhaserGame from "./PhaserGame";
 import LoginCard from "./loginCard";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthCheck() {
-
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [authenticated, setAuthenticated] = useState(false);
 
@@ -46,6 +47,6 @@ export default function AuthCheck() {
     if (authenticated) {
         return <PhaserGame />;
     }
-
-    return <LoginCard />;
+    
+    navigate("/login", {replace: true});
 }
