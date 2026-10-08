@@ -1,9 +1,16 @@
 import {useRef, useEffect} from "react";
 import Phaser from "phaser";
 import GameScene from "./GameScene";
+// import { useNavigate } from "react-router-dom";
 
+// const url = "http://localhost:3000";
 
 export default function PhaserGame() {
+    // const navigate = useNavigate();
+    // if(!props.authenticated) {
+    //     navigate("/login", {replace: true});
+    // }
+
     const gameRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

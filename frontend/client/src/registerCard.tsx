@@ -30,22 +30,23 @@ export default function RegisterCard() {
                 credentials: "include",
                 body: JSON.stringify(formData)
             });
-
+            console.log("getting data");
+            
+            console.log("got data");
             if(response.ok) {
+                const data = await response.json();
+                if(data.code == 1) {
                 console.log("Form data submitted lol");
                 console.log(response.json);  
+                setRegistered(true)
+                navigate("/", {replace: true});
+                }
             }
             else {
                 console.log("Submission failed");
+                setRegistered(false);
             }
-            const data = await response.json();
-            if(data.code == 1) {
-              setRegistered(true)
-              navigate("/", {replace: true});
-            }
-            else{
-              setRegistered(false);
-            }
+           
         }
         catch(err) {
             console.log("Error at form data post: ", err);

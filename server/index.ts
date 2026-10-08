@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import "dotenv/config";
 import cors from "cors";
 import session from 'express-session';
-import passport from 'passport';
+import passport, { authenticate } from 'passport';
 import { Strategy } from 'passport-local';
 
 const hash = 10;
@@ -34,27 +34,39 @@ const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 const loginUrl = frontendUrl + "/login";
 const registerUrl = frontendUrl + "/register";
 
+// for cors
+app.use(cors({
+  origin: [frontendUrl, registerUrl, loginUrl], 
+  methods: ["GET", "POST", "PATCH"],
+  credentials: true
+}));
+
+
+
+app.use(express.json());
+
+
 //session
 app.use(session({
-    secret: <string>process.env.SECRET_KEY,
+    secret: process.env.SECRET_KEY!,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    }
+}));
 
-}))
+
+
+
 
 // setting up passport
 app.use(passport.initialize());
 app.use(passport.session());
 
 
-// for cors
-app.use(cors({
-  origin: [frontendUrl, loginUrl, registerUrl], 
-  methods: ["GET", "POST", "PATCH"],
-  credentials: true
-}));
-
-app.use(express.json());
 
 
 const io = new Server(httpServer, {
@@ -147,18 +159,6 @@ io.on("connection", (socket) => {
 })
 
 
-// get request for / endpoint
-app.get("/", (req, res) => {
-    if(req.isAuthenticated()) {
-        console.log("User already authenticated");
-        res.json({
-            message: "User already authenticated",
-            code: 1
-        })
-    }
-    else
-        res.redirect("/login");
-})
 /*
 metaverse=# CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -171,66 +171,6 @@ metaverse=# CREATE TABLE users (
 */
 
 // Login and authentication
-app.post("/auth/login/", async (req, res) => {
-    if(req.isAuthenticated()) {
-        console.log("User already authenticated");
-        res.json({
-            message: "User already authenticated",
-            code: 1
-        })
-        return;
-    }
-    const data = req.body;
-    const username = data.username;
-    const password = data.password;
-    var foundUser = false;
-    var correctPassword = false;
-    try {
-         const isRegistered = await db.query(`SELECT * 
-            FROM users 
-            WHERE user_name=$1`,
-        [username]);
-         
-         if(isRegistered.rows.length != 0) {
-            foundUser = true;
-            const user = isRegistered.rows[0];
-            correctPassword = await bcrypt.compare(password, user.password_hash)
-         }
-        else 
-            foundUser = false;
-        
-    }
-    catch(err) {
-        res.json({
-            message: "error in searching for username",
-            code: 0
-        })
-        console.log("Unable to find user: ", err);
-    }
-    if(correctPassword && foundUser) {
-        console.log("User found and authenticated");
-        res.json({
-            message: "User found and authenticated",
-            code: 1
-        })
-    }
-    else if(foundUser) {
-        console.log("user found");
-        res.json({
-            message: "user found but not authenticated",
-            code: 0
-        })
-    }
-    else {
-        res.json({
-            message: "user not found, username does not exist",
-            code: 0
-        })
-    }
-
-    // doing somthing wrong :)
-    console.log(username, password);
-})
 app.post("/auth/login/", passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/login"
@@ -288,6 +228,20 @@ app.post("/auth/register/", async (req, res) => {
 
 
 // api calls
+
+// authentication check call
+app.use("/auth/me", (req, res) => {
+    if(req.isAuthenticated()) {
+        res.json({
+            authenticated: true,
+            user: req.user
+        })
+    }
+    else
+        res.status(401).json({
+            authenticated: false
+        })
+})
 /*
 metaverse=# CREATE TABLE users (
     id SERIAL PRIMARY KEY,

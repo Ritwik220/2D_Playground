@@ -9,7 +9,6 @@ export default function LoginCard() {
         username: '',
         password: ''
     });
-
     const navigate = useNavigate();
     const handleChange = (e:any) => {
         const {name, value} = e.target;
@@ -29,16 +28,17 @@ export default function LoginCard() {
                 body: JSON.stringify(formData)
             });
 
-            if(response.ok) {
+           if(response.ok) {
+                const data = await response.json();
+                if(data.code == 1) {
                 console.log("Form data submitted lol");
                 console.log(response.json);  
+                navigate("/", {replace: true});
+                }
             }
             else {
                 console.log("Submission failed");
             }
-            const data = await response.json();
-            if(data.code == 1)
-              navigate("/", {replace: true});
         }
         catch(err) {
             console.log("Error at form data post: ", err);
