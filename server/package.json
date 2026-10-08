@@ -11,14 +11,21 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "pg": "^8.23.1",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/node": "^24.0.0",
+    "@types/express-session": "^1.19.0",
+    "@types/node": "^24.19.1",
+    "@types/passport": "^1.0.17",
+    "@types/passport-local": "^1.0.38",
     "@types/pg": "^8.23.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.3"
   }
 }

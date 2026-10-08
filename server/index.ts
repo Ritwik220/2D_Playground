@@ -5,6 +5,9 @@ import db from "./db.js";
 import bcrypt from 'bcryptjs';
 import "dotenv/config";
 import cors from "cors";
+import session from 'express-session';
+import passport from 'passport';
+import { Strategy } from 'passport-local';
 
 const hash = 10;
 
@@ -30,6 +33,19 @@ const httpServer = createServer(app);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 const loginUrl = frontendUrl + "/login";
 const registerUrl = frontendUrl + "/register";
+
+//session
+app.use(session({
+    secret: <string>process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: true
+
+}))
+
+// setting up passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 // for cors
 app.use(cors({
@@ -129,6 +145,20 @@ io.on("connection", (socket) => {
     })
 
 })
+
+
+// get request for / endpoint
+app.get("/", (req, res) => {
+    if(req.isAuthenticated()) {
+        console.log("User already authenticated");
+        res.json({
+            message: "User already authenticated",
+            code: 1
+        })
+    }
+    else
+        res.redirect("/login");
+})
 /*
 metaverse=# CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -142,6 +172,14 @@ metaverse=# CREATE TABLE users (
 
 // Login and authentication
 app.post("/auth/login/", async (req, res) => {
+    if(req.isAuthenticated()) {
+        console.log("User already authenticated");
+        res.json({
+            message: "User already authenticated",
+            code: 1
+        })
+        return;
+    }
     const data = req.body;
     const username = data.username;
     const password = data.password;
@@ -193,6 +231,10 @@ app.post("/auth/login/", async (req, res) => {
     // doing somthing wrong :)
     console.log(username, password);
 })
+app.post("/auth/login/", passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login"
+}))
 
 
 app.post("/auth/register/", async (req, res) => {
@@ -293,6 +335,34 @@ app.get("/api/users/:id", async (req, res) => {
              FROM users
              WHERE id = $1`,
             [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "User not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+    }
+    catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
+});
+
+app.get("api/users/:username", async (req, res) => {
+     const username = Number(req.params.username);
+
+    try {
+        const result = await db.query(
+            `SELECT id, user_name, display_name, save_spot
+             FROM users
+             WHERE user_name = $1`,
+            [username]
         );
 
         if (result.rows.length === 0) {
@@ -423,6 +493,54 @@ app.post('/api/chats/:senderId/:receiverId', async (req, res) => {
     }
 })
 
+// Authentication strategy
+passport.use(new Strategy(async function verify(username, password, cb) {
+    var foundUser = false;
+    var correctPassword = false;
+    var user: any;
+    try {
+         const isRegistered = await db.query(`SELECT * 
+            FROM users 
+            WHERE user_name=$1`,
+        [username]);
+         
+         if(isRegistered.rows.length != 0) {
+            foundUser = true;
+            user = isRegistered.rows[0];
+            correctPassword = await bcrypt.compare(password, user.password_hash)
+         }
+        else 
+            foundUser = false;
+        
+    }
+    catch(err) {
+        console.log("Unable to find user: ", err);
+        return cb(err);
+    }
+    if(correctPassword && foundUser) {
+        console.log("User found and authenticated");
+        return cb(null, user)
+    }
+    else if(foundUser) {
+        console.log("user found");
+        return cb(null, false);
+    }
+    else {
+        return cb("User not found");
+    }
+
+    // doing somthing wrong :)
+    console.log(username, password);
+}))
+
+
+// Serialization and deserialization of the user object
+passport.serializeUser((user, cb) => {
+    cb(null, user);
+})
+passport.deserializeUser((user:any, cb) => {
+    cb(null, user);
+})
 
 
 httpServer.listen(port, () => {
