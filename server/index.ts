@@ -171,10 +171,32 @@ metaverse=# CREATE TABLE users (
 */
 
 // Login and authentication
-app.post("/auth/login/", passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/login"
-}))
+app.post("/auth/login/", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: any, info: any) => {
+        if (err) {
+            return next(err);
+        }
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Invalid username or password",
+                code: 0
+            });
+        }
+
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+
+            return res.json({
+                message: "Login successful",
+                code: 1,
+                user: user
+            });
+        });
+    })(req, res, next);
+});
 
 
 app.post("/auth/register/", async (req, res) => {

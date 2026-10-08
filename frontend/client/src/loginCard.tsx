@@ -29,7 +29,9 @@ export default function LoginCard() {
             });
 
            if(response.ok) {
+                console.log("getting data");
                 const data = await response.json();
+                console.log("got data");
                 if(data.code == 1) {
                 console.log("Form data submitted lol");
                 console.log(response.json);  
