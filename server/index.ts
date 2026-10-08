@@ -151,18 +151,21 @@ app.post("/auth/login/", async (req, res) => {
             WHERE user_name=$1`,
         [username]);
          console.log("user found");
+        res.json({
+            message: "user found",
+            code: 1
+        })
     }
     catch(err) {
         console.log("Unable to find user: ", err);
+        res.json({
+            message: "user not found",
+            code: 0
+        })
     }
 
     // doing somthing wrong :)
     console.log(username, password);
-
-    res.json({
-        message: "Login request received",
-        code: 1
-    });
 })
 
 
@@ -177,7 +180,10 @@ app.post("/auth/register/", async (req, res) => {
             FROM users 
             WHERE user_name=$1`,
         [username]);
-        ifRegistered = true;
+        if(checkRegistered.rows.length != 0)
+            ifRegistered = true;
+        else
+            ifRegistered = false;
     } catch(err) {
         ifRegistered = false;
     }

@@ -1,15 +1,16 @@
 import { useState } from "react";
-import {Link} from "react-router-dom" 
+import {Link, useNavigate} from "react-router-dom" 
 
 const url = "http://localhost:3000";
 
 export default function LoginCard() {
     const [isRegister, setIsRegister] = useState(false);
     const [formData, setFormData] = useState({
-  username: '',
-  password: ''
-});
+        username: '',
+        password: ''
+    });
 
+    const navigate = useNavigate();
     const handleChange = (e:any) => {
         const {name, value} = e.target;
         setFormData((prev) => ({ ...prev, [name]: value})) 
@@ -35,6 +36,9 @@ export default function LoginCard() {
             else {
                 console.log("Submission failed");
             }
+            const data = await response.json();
+            if(data.code == 1)
+              navigate("/", {replace: true});
         }
         catch(err) {
             console.log("Error at form data post: ", err);

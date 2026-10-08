@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const url = "http://localhost:3000";
 
+
 export default function RegisterCard() {
+    const [registered, setRegistered] = useState(false);
     const [formData, setFormData] = useState({
   username: '',
   display_name: '',
   password: ''
 });
+  const navigate = useNavigate();
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -35,12 +38,19 @@ export default function RegisterCard() {
             else {
                 console.log("Submission failed");
             }
+            const data = await response.json();
+            if(data.code == 1) {
+              setRegistered(true)
+              navigate("/", {replace: true});
+            }
+            else{
+              setRegistered(false);
+            }
         }
         catch(err) {
             console.log("Error at form data post: ", err);
         } 
     };
-
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
   <div className="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8">
@@ -111,7 +121,7 @@ export default function RegisterCard() {
         type="submit" 
         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
       >
-        Sign In
+        Sign Up
       </button>
     </form>
      <p class="text-center text-sm text-gray-600 mt-8">
