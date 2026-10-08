@@ -27,6 +27,7 @@ testDB();
 const app: Express = express();
 const httpServer = createServer(app);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const frontendRegisterUrl = process.env.FRONTEND_REGISTER_URL || "http://localhost:5173/register"
 // for cors
 app.use(cors({
   origin: frontendUrl, 
@@ -137,16 +138,19 @@ metaverse=# CREATE TABLE users (
 */
 
 // Login and authentication
-app.post("/auth/login/", (req, res) => {
+app.post("/auth/login/", async (req, res) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;
+    const isRegistered = await db.query(`SELECT * FROM users WHERE user_name=${username}`);
+
 
     // doing somthing wrong :)
     console.log(username, password);
 
     res.json({
-        message: "Login request received"
+        message: "Login request received",
+        code: 1
     });
 })
 
@@ -156,11 +160,42 @@ app.post("/auth/register/", async (req, res) => {
     const username = data.username;
     const password = data.password;
     const displayName = data.display_name;
-    // Lets do something definitely not safe for shits and giggles lol
-    console.log(username, password, displayName);
-    const hashedpassword = await hashPassword(password);
-    // db.query(`INSERT INTO users (user_name, password, display_name) VALUES (${username}, ${hashedpassword}, ${displayName})`);
+    var ifRegistered = false;
+    try {
+        const checkRegistered = await db.query(`SELECT * FROM users WHERE user_name=${username}`);
+        ifRegistered = true;
+    } catch(err) {
+        ifRegistered = false;
+    }
+    if(ifRegistered) {
+        console.log(`User with username ${username} already exists!`);
+        res.json({
+            message: `User with username ${username} already exists`,
+            code: 0
+        })
+    }
+    else {
+        // Lets do something definitely not safe for shits and giggles lol
+        console.log(username, password, displayName);
+        const hashedpassword = await hashPassword(password);
+        try{
+            const response = await db.query(`INSERT INTO users (user_name, password_hash, display_name) VALUES ($1, $2, $3)`, [username, password, displayName]);
+            console.log(response);
+            res.json({
+                message: "User registered",
+                code: 1            
+            })
+        }
+        catch(err) {
+            console.error(`Error in registering new user: ${err}`);
+            res.json({
+                message: err,
+                code: 0
+            })
+        }
 
+    }
+    
 })
 
 
