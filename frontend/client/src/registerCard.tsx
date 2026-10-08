@@ -116,7 +116,7 @@ export default function RegisterCard() {
     </form>
      <p class="text-center text-sm text-gray-600 mt-8">
       Already have an account? 
-      <Link to="/" class="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Login</Link>
+      <Link to="/login" class="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Login</Link>
     </p>
 
   </div>

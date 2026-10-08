@@ -10,7 +10,7 @@ export default function LoginPage() {
   return (
     <BrowserRouter>
         <Routes>
-          <Route path="/" element=<LoginCard/>/>
+          <Route path="/login" element=<LoginCard/>/>
           <Route path="/register" element=<RegisterCard/>/>
         </Routes>
     </BrowserRouter>

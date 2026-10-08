@@ -23,14 +23,17 @@ async function hashPassword(password: string) :Promise<string> {
 
 
 testDB();
+db.connect();
 
 const app: Express = express();
 const httpServer = createServer(app);
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-const frontendRegisterUrl = process.env.FRONTEND_REGISTER_URL || "http://localhost:5173/register"
+const loginUrl = frontendUrl + "/login";
+const registerUrl = frontendUrl + "/register";
+
 // for cors
 app.use(cors({
-  origin: frontendUrl, 
+  origin: [frontendUrl, loginUrl, registerUrl], 
   methods: ["GET", "POST", "PATCH"],
   credentials: true
 }));
@@ -142,8 +145,16 @@ app.post("/auth/login/", async (req, res) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;
-    const isRegistered = await db.query(`SELECT * FROM users WHERE user_name=${username}`);
-
+    try {
+         const isRegistered = await db.query(`SELECT * 
+            FROM users 
+            WHERE user_name=$1`,
+        [username]);
+         console.log("user found");
+    }
+    catch(err) {
+        console.log("Unable to find user: ", err);
+    }
 
     // doing somthing wrong :)
     console.log(username, password);
@@ -162,7 +173,10 @@ app.post("/auth/register/", async (req, res) => {
     const displayName = data.display_name;
     var ifRegistered = false;
     try {
-        const checkRegistered = await db.query(`SELECT * FROM users WHERE user_name=${username}`);
+        const checkRegistered = await db.query(`SELECT * 
+            FROM users 
+            WHERE user_name=$1`,
+        [username]);
         ifRegistered = true;
     } catch(err) {
         ifRegistered = false;
@@ -179,7 +193,7 @@ app.post("/auth/register/", async (req, res) => {
         console.log(username, password, displayName);
         const hashedpassword = await hashPassword(password);
         try{
-            const response = await db.query(`INSERT INTO users (user_name, password_hash, display_name) VALUES ($1, $2, $3)`, [username, password, displayName]);
+            const response = await db.query(`INSERT INTO users (user_name, password_hash, display_name) VALUES ($1, $2, $3)`, [username, hashedpassword, displayName]);
             console.log(response);
             res.json({
                 message: "User registered",

@@ -19,7 +19,7 @@ export default function LoginCard() {
         // console.log("Submitted Data:", formData);
         console.log("In handle submit.\n");
         try{
-            const response = await fetch(url + "auth/login/", {
+            const response = await fetch(url + "/auth/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json" // Readies the server for json data
