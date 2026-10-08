@@ -145,21 +145,47 @@ app.post("/auth/login/", async (req, res) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;
+    var foundUser = false;
+    var correctPassword = false;
     try {
          const isRegistered = await db.query(`SELECT * 
             FROM users 
             WHERE user_name=$1`,
         [username]);
-         console.log("user found");
+         
+         if(isRegistered.rows.length != 0) {
+            foundUser = true;
+            const user = isRegistered.rows[0];
+            correctPassword = await bcrypt.compare(password, user.password_hash)
+         }
+        else 
+            foundUser = false;
+        
+    }
+    catch(err) {
         res.json({
-            message: "user found",
+            message: "error in searching for username",
+            code: 0
+        })
+        console.log("Unable to find user: ", err);
+    }
+    if(correctPassword && foundUser) {
+        console.log("User found and authenticated");
+        res.json({
+            message: "User found and authenticated",
             code: 1
         })
     }
-    catch(err) {
-        console.log("Unable to find user: ", err);
+    else if(foundUser) {
+        console.log("user found");
         res.json({
-            message: "user not found",
+            message: "user found but not authenticated",
+            code: 0
+        })
+    }
+    else {
+        res.json({
+            message: "user not found, username does not exist",
             code: 0
         })
     }
