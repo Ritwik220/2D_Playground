@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {Link, useNavigate} from "react-router-dom" 
 
-const url = import.meta.env.BACKEND_URL  || "http://localhost:3000";
+const url = "";
 
 export default function LoginCard() {
     // const [isRegister, setIsRegister] = useState(false);
