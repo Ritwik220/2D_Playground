@@ -50,11 +50,11 @@ app.use(express.json());
 app.use(session({
     secret: process.env.SECRET_KEY!,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
         httpOnly: true,
         secure: true,
-        sameSite: "lax"
+        sameSite: "none"
     }
 }));
 
@@ -190,7 +190,7 @@ app.post("/auth/login/", (req, res, next) => {
                 return next(err);
             }
 
-            return res.json({
+            return res.status(201).json({
                 message: "Login successful",
                 code: 1,
                 user: user
@@ -200,7 +200,7 @@ app.post("/auth/login/", (req, res, next) => {
 });
 
 
-app.post("/auth/register/", async (req, res) => {
+app.post("/auth/register/", async (req, res, next) => {
     const data = req.body;
     const username = data.username;
     const password = data.password;
@@ -232,10 +232,21 @@ app.post("/auth/register/", async (req, res) => {
         try{
             const response = await db.query(`INSERT INTO users (user_name, password_hash, display_name) VALUES ($1, $2, $3)`, [username, hashedpassword, displayName]);
             console.log(response);
-            res.json({
-                message: "User registered",
-                code: 1            
-            })
+            const user = response.rows[0];
+            req.logIn(user, (err) => { 
+                if (err) 
+                    return next(err); 
+                req.session.save((err) => { 
+                    if (err) 
+                        return next(err); 
+                    return res.status(201).json({
+                         message: "User registered", 
+                         code: 1, 
+                         user 
+                        }
+                    ); 
+                }); 
+            });
         }
         catch(err) {
             console.error(`Error in registering new user: ${err}`);
