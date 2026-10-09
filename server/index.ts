@@ -53,7 +53,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: false,
+        secure: true,
         sameSite: "lax"
     }
 }));
@@ -71,7 +71,8 @@ app.use(passport.session());
 
 const io = new Server(httpServer, {
     cors: {
-        origin: true
+        origin: true,
+        credentials: true
     }
 })
 
