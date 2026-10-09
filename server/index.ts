@@ -50,11 +50,11 @@ app.use(express.json());
 app.use(session({
     secret: process.env.SECRET_KEY!,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         httpOnly: true,
         secure: true,
-        sameSite: "none"
+        sameSite: "lax"
     }
 }));
 
@@ -266,7 +266,7 @@ app.post("/auth/register/", async (req, res, next) => {
 // authentication check call
 app.use("/auth/me", (req, res) => {
     if(req.isAuthenticated()) {
-        res.json({
+        res.send(201).json({
             authenticated: true,
             user: req.user
         })
