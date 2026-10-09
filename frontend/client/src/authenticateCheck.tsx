@@ -18,7 +18,7 @@ export default function AuthCheck() {
             try {
 
                 const response = await fetch(
-                    url + "/auth/me",
+                    url + "auth/me",
                     {
                         credentials: "include"
                     }
