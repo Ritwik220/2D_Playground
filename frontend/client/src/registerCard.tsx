@@ -5,7 +5,7 @@ const url = "http://localhost:3000";
 
 
 export default function RegisterCard() {
-    const [registered, setRegistered] = useState(false);
+    // const [registered, setRegistered] = useState(false);
     const [formData, setFormData] = useState({
   username: '',
   display_name: '',
@@ -13,7 +13,7 @@ export default function RegisterCard() {
 });
   const navigate = useNavigate();
 
-    const handleChange = (e) => {
+    const handleChange = (e:any) => {
         const {name, value} = e.target;
         setFormData((prev) => ({ ...prev, [name]: value})) 
     }
@@ -38,13 +38,13 @@ export default function RegisterCard() {
                 if(data.code == 1) {
                 console.log("Form data submitted lol");
                 console.log(response.json);  
-                setRegistered(true)
+                // setRegistered(true)
                 navigate("/", {replace: true});
                 }
             }
             else {
                 console.log("Submission failed");
-                setRegistered(false);
+                // setRegistered(false);
             }
            
         }
@@ -60,9 +60,9 @@ export default function RegisterCard() {
       <p className="text-sm text-white">Please enter your details to sign in</p>
     </div>
 
-    <form class="space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div>
-        <label htmlFor="Username" class="block text-sm font-medium text-white mb-2">Username</label>
+        <label htmlFor="Username" className="block text-sm font-medium text-white mb-2">Username</label>
         <input 
           type="text" 
           id="username" 
@@ -71,12 +71,12 @@ export default function RegisterCard() {
           required
           value={formData.username} 
           onChange={handleChange}
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 
       <div>
-        <label htmlFor="display_name" class="block text-sm font-medium text-white mb-2">Display Name</label>
+        <label htmlFor="display_name" className="block text-sm font-medium text-white mb-2">Display Name</label>
         <input 
           type="text" 
           id="display_name" 
@@ -85,14 +85,14 @@ export default function RegisterCard() {
           required
           value={formData.display_name} 
           onChange={handleChange}
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 
       <div>
-        <div class="flex justify-between items-center mb-2">
-          <label htmlFor="password" class="text-sm font-medium text-white">Password</label>
-          <a href="#" class="text-sm font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Forgot password?</a>
+        <div className="flex justify-between items-center mb-2">
+          <label htmlFor="password" className="text-sm font-medium text-white">Password</label>
+          <a href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Forgot password?</a>
         </div>
         <input 
           type="password" 
@@ -102,32 +102,32 @@ export default function RegisterCard() {
           onChange={handleChange}
           value={formData.password}
           required
-          class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-gray-100 placeholder-gray-400"
         />
       </div>
 
-      <div class="flex items-center">
+      <div className="flex items-center">
         <input 
           type="checkbox" 
           id="remember-me" 
           name="remember-me"
-          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition duration-200"
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition duration-200"
         />
-        <label htmlFor="remember-me" class="ml-2 block text-sm text-gray-600 select-none">
+        <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600 select-none">
           Remember me
         </label>
       </div>
 
       <button 
         type="submit" 
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition duration-200 active:scale-[0.98]"
       >
         Sign Up
       </button>
     </form>
-     <p class="text-center text-sm text-gray-600 mt-8">
+     <p className="text-center text-sm text-gray-600 mt-8">
       Already have an account? 
-      <Link to="/login" class="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Login</Link>
+      <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline transition duration-200">Login</Link>
     </p>
 
   </div>
