@@ -230,8 +230,12 @@ app.post("/auth/register/", async (req, res, next) => {
         console.log(username, password, displayName);
         const hashedpassword = await hashPassword(password);
         try{
-            const response = await db.query(`INSERT INTO users (user_name, password_hash, display_name) VALUES ($1, $2, $3)`, [username, hashedpassword, displayName]);
-            console.log(response);
+            const response = await db.query(
+                `INSERT INTO users (user_name, password_hash, display_name)
+                VALUES ($1, $2, $3)
+                RETURNING id, user_name, display_name, save_spot`,
+                [username, hashedpassword, displayName]
+            );
             const user = response.rows[0];
             req.logIn(user, (err) => { 
                 if (err) 
