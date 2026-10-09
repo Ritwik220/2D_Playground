@@ -30,7 +30,7 @@ db.connect();
 
 const app: Express = express();
 const httpServer = createServer(app);
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
 const loginUrl = frontendUrl + "/login";
 const registerUrl = frontendUrl + "/register";
 
