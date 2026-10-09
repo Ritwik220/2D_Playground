@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const url = "http://localhost:3000";
+const url = import.meta.env.BACKEND_URL  || "http://localhost:3000";
 
 
 export default function RegisterCard() {
