@@ -3,6 +3,9 @@ import PhaserGame from "./PhaserGame";
 // import LoginCard from "./loginCard";
 import { useNavigate } from "react-router-dom";
 
+
+const url = import.meta.env.VITE_BACKEND_URL  || "http://localhost:3000";
+
 export default function AuthCheck() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -15,7 +18,7 @@ export default function AuthCheck() {
             try {
 
                 const response = await fetch(
-                    "http://localhost:3000/auth/me",
+                    url + "/auth/me",
                     {
                         credentials: "include"
                     }
