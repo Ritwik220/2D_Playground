@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PhaserGame from "./PhaserGame";
-import LoginCard from "./loginCard";
+// import LoginCard from "./loginCard";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthCheck() {

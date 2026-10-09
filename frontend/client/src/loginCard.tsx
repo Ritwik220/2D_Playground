@@ -4,7 +4,7 @@ import {Link, useNavigate} from "react-router-dom"
 const url = "http://localhost:3000";
 
 export default function LoginCard() {
-    const [isRegister, setIsRegister] = useState(false);
+    // const [isRegister, setIsRegister] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
         password: ''
