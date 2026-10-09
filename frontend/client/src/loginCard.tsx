@@ -63,7 +63,7 @@ export default function LoginCard() {
           type="text" 
           id="username" 
           name="username"
-          placeholder="gay6767" 
+          placeholder="username" 
           required
           value={formData.username} 
           onChange={handleChange}

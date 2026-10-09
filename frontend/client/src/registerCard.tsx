@@ -67,7 +67,7 @@ export default function RegisterCard() {
           type="text" 
           id="username" 
           name="username"
-          placeholder="gay6767" 
+          placeholder="username" 
           required
           value={formData.username} 
           onChange={handleChange}
@@ -81,7 +81,7 @@ export default function RegisterCard() {
           type="text" 
           id="display_name" 
           name="display_name"
-          placeholder="aditya_is_gay" 
+          placeholder="name" 
           required
           value={formData.display_name} 
           onChange={handleChange}
