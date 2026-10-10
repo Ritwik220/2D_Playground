@@ -27,6 +27,8 @@ export default class GameScene extends Phaser.Scene {
     // Previous state of the player, later used to find out if there was any change that needs to emitted through web sockets
     private prevState = "idle";
     private stateChanged = false;
+    // spawn postion
+    private spawnPosition = {x: 300, y: 400};
     // Web socket variable
     private socket!: Socket;
     // variable that defines what action the player needs to take
@@ -197,6 +199,13 @@ export default class GameScene extends Phaser.Scene {
                 this.otherPlayers.set(player.id, sprite);
             });
         });
+        this.socket.on("spawn_position", (position) => {
+            this.spawnPosition = position;
+
+            if (this.player) {
+                this.player.setPosition(position.x, position.y);
+            }
+        });
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", (player) => {
             const sprite = this.physics.add.sprite(
@@ -250,10 +259,11 @@ export default class GameScene extends Phaser.Scene {
         })
 
 
+
         // Adding our player
         this.player = this.physics.add.sprite(
-            400,
-            300,
+            this.spawnPosition.x,
+            this.spawnPosition.y,
             "idle_up"
         );
 

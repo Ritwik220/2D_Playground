@@ -119,6 +119,7 @@ io.on("connection", async (socket) => {
             [user.user_name]
         )
     console.log(user.display_name+ " joined");
+
     const db_user = response.rows[0]
     players.set(socket.id, {
         id: socket.id,
@@ -130,6 +131,8 @@ io.on("connection", async (socket) => {
         user_id: user.id
     })
     console.log(user.save_spot, db_user.save_spot, user.save_spot == db_user.save_spot);
+    // sending the spawn position so that the sprite in the frontend can be created accordingly
+    socket.emit("spawn position", db_user.save_spot);
 
     socket.emit("players", Array.from(players.values()));
 
