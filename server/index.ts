@@ -269,7 +269,7 @@ app.post("/auth/register/", async (req, res, next) => {
 // api calls
 
 // authentication check call
-app.use("/auth/me", (req, res) => {
+app.get("/auth/me", (req, res) => {
     console.log("The stored user is "+req.user);
     if(req.user) {
         res.send(201).json({
