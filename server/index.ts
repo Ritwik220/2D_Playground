@@ -97,6 +97,7 @@ const port = process.env.PORT || 3000;
 io.on("connection", (socket) => {
     // setup
     console.log("Player connected", socket.id);
+    socket.join("global room");
 
     /*
     CREATE TABLE users (
@@ -182,6 +183,11 @@ io.on("connection", (socket) => {
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
+        const player = players.get(socket.id);
+        user.save_spot = {
+            x: player.x,
+            y: player.y
+        };
         const response = await db.query(
             `UPDATE users
              SET save_spot = $1 
