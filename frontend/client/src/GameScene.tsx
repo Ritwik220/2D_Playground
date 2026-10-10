@@ -203,9 +203,12 @@ export default class GameScene extends Phaser.Scene {
             console.log("in spawn position");
             this.spawnPosition = position;
 
-            if (this.player) {
-                this.player.setPosition(position.x, position.y);
-            }
+            // Adding our player
+            this.player = this.physics.add.sprite(
+                this.spawnPosition.x,
+                this.spawnPosition.y,
+                "idle_up"
+            );
         });
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", (player) => {
@@ -261,12 +264,6 @@ export default class GameScene extends Phaser.Scene {
 
 
 
-        // Adding our player
-        this.player = this.physics.add.sprite(
-            this.spawnPosition.x,
-            this.spawnPosition.y,
-            "idle_up"
-        );
 
         this.player.anims.play("idle_up", true);
 
