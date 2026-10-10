@@ -121,7 +121,8 @@ io.on("connection", async (socket) => {
         direction: "up",
         action: "idle",
         username: user.user_name,
-        user_id: user.id
+        user_id: user.id,
+        display_name: user.display_name
     })
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
