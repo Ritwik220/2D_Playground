@@ -465,6 +465,8 @@ export default class GameScene extends Phaser.Scene {
             if(name_tag) {
                 name_tag.setPosition(sprite.x, sprite.y - 30);
             }
+            else
+                console.log("name tag not found ", name_tag);
         });
     }
 }
