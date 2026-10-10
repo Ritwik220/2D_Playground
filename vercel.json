@@ -30,6 +30,20 @@
       }
     },
     {
+      "source": "/login",
+      "destination": {
+        "service": "frontend",
+         "path": "/frontend/client/index.html"
+      }
+    },
+    {
+      "source": "/register",
+      "destination": {
+        "service": "frontend",
+         "path": "/frontend/client/index.html"
+      }
+    },
+    {
       "source": "/(.*)",
       "destination": {
         "service": "frontend",
