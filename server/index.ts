@@ -46,6 +46,8 @@ app.use(cors({
 app.use(express.json());
 
 
+app.set("trust proxy", 1);
+
 //session
 app.use(session({
     secret: process.env.SECRET_KEY!,
