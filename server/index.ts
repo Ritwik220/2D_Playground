@@ -179,11 +179,11 @@ io.on("connection", (socket) => {
 
     // Disconnect
     socket.on("disconnect", async () => {
+        const player = players.get(socket.id);
         players.delete(socket.id);
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
-        const player = players.get(socket.id);
         user.save_spot = {
             x: player.x,
             y: player.y
