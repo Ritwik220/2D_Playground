@@ -52,16 +52,18 @@ app.use(express.json());
 
 app.set("trust proxy", 1);
 
-//session
-app.use(session({
+
+
+const sessionMiddleware = session({
   store: new PgStore({ pool: db, createTableIfMissing: true }),
   secret: process.env.SECRET_KEY!,
   resave: false,
   saveUninitialized: false,
   cookie: { httpOnly: true, secure: process.env.DEPLOY == "true", sameSite: "lax", maxAge: 1000 * 60 * 60 * 24 * 7 },
-}));
+});
 
-
+//session
+app.use(sessionMiddleware);
 
 
 
@@ -79,6 +81,11 @@ const io = new Server(httpServer, {
     }
 })
 
+
+io.engine.use(sessionMiddleware);
+io.engine.use(passport.initialize());
+io.engine.use(passport.session());
+
 const players = new Map();
 // Tracks which sockets have their mic ready and have announced voice_ready.
 // A peer is only offered to (or offers to) others once both sides are ready,
@@ -91,12 +98,29 @@ io.on("connection", (socket) => {
     // setup
     console.log("Player connected", socket.id);
 
+    /*
+    CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    user_name VARCHAR(30) UNIQUE NOT NULL,
+    display_name VARCHAR(50) NOT NULL,
+    password_hash TEXT NOT NULL,
+    save_spot JSONB DEFAULT '{"x": 400, "y": 300}'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    */
+    // getting the user object
+    const req = socket.request as any;
+    const user = req?.user;
+    console.log(user.display_name+ " joined");
+
     players.set(socket.id, {
         id: socket.id,
-        x: 400,
-        y: 300,
+        x: user.save_spot.x,
+        y: user.save_spot.y,
         direction: "up",
-        action: "idle"
+        action: "idle",
+        username: user.user_name,
+        user_id: user.id
     })
 
     socket.emit("players", Array.from(players.values()));
@@ -153,11 +177,18 @@ io.on("connection", (socket) => {
     });
 
     // Disconnect
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
         players.delete(socket.id);
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
+        const response = await db.query(
+            `UPDATE users
+             SET save_spot = $1 
+             WHERE id = $2;
+            `,
+            [user.save_spot, user.id]
+        )
     })
 
 })
