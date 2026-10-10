@@ -180,11 +180,11 @@ io.on("connection", (socket) => {
     // Disconnect
     socket.on("disconnect", async () => {
         const player = players.get(socket.id);
-        players.delete(socket.id);
+        if(!player) return;
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
-        user.save_spot = {
+        const new_save_spot = {
             x: player.x,
             y: player.y
         };
@@ -193,8 +193,9 @@ io.on("connection", (socket) => {
              SET save_spot = $1 
              WHERE id = $2;
             `,
-            [user.save_spot, user.id]
+            [new_save_spot, user.id]
         )
+        players.delete(socket.id);
     })
 
 })
