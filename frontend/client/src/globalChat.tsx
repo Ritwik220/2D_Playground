@@ -1,7 +1,7 @@
 
 
 
-export default function globalChat() {
+export default function GlobalChat() {
     return (
         <div id="globalChat">
           <div id="globalChatIcon" className="relative w-32 h-32 p-4 bg-blue-600 border border-blue-900 rounded-lg shadow-sm">
