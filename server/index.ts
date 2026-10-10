@@ -269,10 +269,11 @@ app.post("/auth/register/", async (req, res, next) => {
 
 // authentication check call
 app.use("/auth/me", (req, res) => {
-    if(req.isAuthenticated()) {
+    console.log("The stored user is "+req.user);
+    if(req.user) {
         res.send(201).json({
             authenticated: true,
-            user: req.user
+            user: req.user,
         })
     }
     else
