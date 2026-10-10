@@ -201,7 +201,7 @@ export default class GameScene extends Phaser.Scene {
         });
         this.socket.on("spawn position", (position) => {
             console.log("in spawn");
-            if(!this.player) return;
+            if(this.player) return;
 
             // Adding our player
             this.player = this.physics.add.sprite(
@@ -351,6 +351,7 @@ export default class GameScene extends Phaser.Scene {
 
     
     update(_time: number, _delta: number) {
+        if(!this.player) return;
         this.joystick?.update();
 
         let moveX = 0;
