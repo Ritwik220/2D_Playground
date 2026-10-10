@@ -8,6 +8,10 @@ import cors from "cors";
 import session from 'express-session';
 import passport, { authenticate } from 'passport';
 import { Strategy } from 'passport-local';
+import connectPgSimple from "connect-pg-simple";
+
+const PgStore = connectPgSimple(session);
+
 
 const hash = 10;
 
@@ -50,14 +54,11 @@ app.set("trust proxy", 1);
 
 //session
 app.use(session({
-    secret: process.env.SECRET_KEY!,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax"
-    }
+  store: new PgStore({ pool: db, createTableIfMissing: true }),
+  secret: process.env.SECRET_KEY!,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, secure: true, sameSite: "lax", maxAge: 1000 * 60 * 60 * 24 * 7 },
 }));
 
 
