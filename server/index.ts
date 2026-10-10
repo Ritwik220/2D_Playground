@@ -184,7 +184,7 @@ app.post("/auth/login/", (req, res, next) => {
                 code: 0
             });
         }
-
+        console.log(user + "logged in");
         req.logIn(user, (err) => {
             if (err) {
                 return next(err);
@@ -243,6 +243,7 @@ app.post("/auth/register/", async (req, res, next) => {
                 req.session.save((err) => { 
                     if (err) 
                         return next(err); 
+                    console.log(user + " logged in");
                     return res.status(201).json({
                          message: "User registered", 
                          code: 1, 
