@@ -112,27 +112,20 @@ io.on("connection", async (socket) => {
     // getting the user object
     const req = socket.request as any;
     const user = req?.user;
-    const response = await db.query(
-        `SELECT save_spot
-             FROM users
-             WHERE user_name = $1`,
-            [user.user_name]
-        )
     console.log(user.display_name+ " joined");
 
-    const db_user = response.rows[0]
     players.set(socket.id, {
         id: socket.id,
-        x: db_user.save_spot.x,
-        y: db_user.save_spot.y,
+        x: user.save_spot.x,
+        y: user.save_spot.y,
         direction: "up",
         action: "idle",
         username: user.user_name,
         user_id: user.id
     })
-    console.log(user.save_spot, db_user.save_spot, user.save_spot == db_user.save_spot);
+
     // sending the spawn position so that the sprite in the frontend can be created accordingly
-    socket.emit("spawn position", db_user.save_spot);
+    socket.emit("spawn position", user.save_spot);
 
     socket.emit("players", Array.from(players.values()));
 
