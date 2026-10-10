@@ -53,6 +53,10 @@ export default class GameScene extends Phaser.Scene {
         string,
         Phaser.Physics.Arcade.Sprite
     >();
+    private otherPlayerNameTags = new Map<
+        string,
+        Phaser.GameObjects.Text
+    >();
 
     constructor() {
         super("Game Scene");
@@ -196,8 +200,16 @@ export default class GameScene extends Phaser.Scene {
                     player.y,
                     "idle_up"
                 );
+                const name_tag = this.add.text(0, 0, player.display_name, {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#FFFFFF',
+                stroke: '#000000',
+                strokeThickness: 2
+                })
                 this.physics.add.collider(this.player, sprite);
                 this.otherPlayers.set(player.id, sprite);
+                this.otherPlayerNameTags.set(player.id, name_tag);
             });
         });
         this.socket.on("spawn player", (position, user) => {
@@ -213,7 +225,7 @@ export default class GameScene extends Phaser.Scene {
             this.playerNameText = this.add.text(0, 0, user.display_name, {
                 fontFamily: 'Arial',
                 fontSize: '14px',
-                color: '#ffffff',
+                color: '#FFD16A',
                 stroke: '#000000',
                 strokeThickness: 2
             }).setOrigin(0.5);
@@ -431,14 +443,19 @@ export default class GameScene extends Phaser.Scene {
         true
         );
 
-        this.otherPlayers.forEach((sprite) => {
+        this.otherPlayers.forEach((sprite, id) => {
             const targetX = sprite.getData("targetX");
             const targetY = sprite.getData("targetY");
-
+            const name_tag = this.otherPlayerNameTags.get(id);
+            
             if (targetX === undefined || targetY === undefined) return;
 
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
+            if(name_tag) {
+                name_tag.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
+                name_tag.y = Phaser.Math.Linear(sprite.y - 30, targetX, 0.25);
+            }
         });
     }
 }
