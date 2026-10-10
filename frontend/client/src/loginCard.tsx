@@ -33,9 +33,13 @@ export default function LoginCard() {
                 const data = await response.json();
                 console.log("got data");
                 if(data.code == 1) {
-                console.log("Form data submitted lol");
-                console.log(response.json);  
-                navigate("/", {replace: true});
+                  console.log("Form data submitted lol");
+                  console.log(response.json);  
+                  navigate("/", {replace: true});
+                }
+                else {
+                  const err_stat = document.querySelector("#error");
+                  err_stat!.innerHTML = data.message;
                 }
             }
             else {
@@ -53,6 +57,7 @@ export default function LoginCard() {
   <div className="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8">
     <div className="text-center mb-8">
       <h2 className="text-3xl font-bold text-gray-100 mb-2">Welcome Back</h2>
+      <p id="error" className="text-sm text-red-600"></p>
       <p className="text-sm text-white">Please enter your details to sign in</p>
     </div>
 

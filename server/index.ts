@@ -58,7 +58,7 @@ app.use(session({
   secret: process.env.SECRET_KEY!,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, secure: true, sameSite: "lax", maxAge: 1000 * 60 * 60 * 24 * 7 },
+  cookie: { httpOnly: true, secure: process.env.DEPLOY == "true", sameSite: "lax", maxAge: 1000 * 60 * 60 * 24 * 7 },
 }));
 
 

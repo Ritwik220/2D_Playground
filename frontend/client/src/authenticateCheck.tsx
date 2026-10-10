@@ -4,7 +4,7 @@ import PhaserGame from "./PhaserGame";
 import { useNavigate } from "react-router-dom";
 
 
-const url = import.meta.env.VITE_BACKEND_URL  || "http://localhost:3000";
+const url = import.meta.env.VITE_BACKEND_URL  || "http://localhost:3000/";
 
 export default function AuthCheck() {
     const navigate = useNavigate();
