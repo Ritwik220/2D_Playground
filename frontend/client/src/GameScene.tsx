@@ -199,7 +199,8 @@ export default class GameScene extends Phaser.Scene {
                 this.otherPlayers.set(player.id, sprite);
             });
         });
-        this.socket.on("spawn_position", (position) => {
+        this.socket.on("spawn position", (position) => {
+            console.log("in spawn position");
             this.spawnPosition = position;
 
             if (this.player) {
