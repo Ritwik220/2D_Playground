@@ -125,7 +125,7 @@ io.on("connection", async (socket) => {
     })
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
-    socket.emit("spawn position", user.save_spot);
+    socket.emit("spawn player", user.save_spot, user);
 
     socket.emit("players", Array.from(players.values()));
 

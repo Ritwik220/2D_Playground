@@ -35,6 +35,7 @@ export default class GameScene extends Phaser.Scene {
     private action = "idle";
     // Player sprite
     private player!: Phaser.Physics.Arcade.Sprite;
+    private playerNameText : Phaser.GameObjects.Text = this.add.text(0, 0, "");
     // Initializing the virtual joystick
     private joystick!: VirtualJoystick;
     // Initializing the keys that are needed
@@ -199,7 +200,7 @@ export default class GameScene extends Phaser.Scene {
                 this.otherPlayers.set(player.id, sprite);
             });
         });
-        this.socket.on("spawn position", (position) => {
+        this.socket.on("spawn player", (position, user) => {
             console.log("in spawn");
             if(this.player) return;
 
@@ -209,6 +210,13 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
+            this.playerNameText = this.add.text(0, 0, user.display_name, {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#ffffff',
+                stroke: '#000000',
+                strokeThickness: 2
+            }).setOrigin(0.5);
 
             this.player.anims.play("idle_up", true);
         });
@@ -397,6 +405,9 @@ export default class GameScene extends Phaser.Scene {
         }
 
         this.player.setVelocity(moveX * speed, moveY * speed);
+        if(this.playerNameText) {
+            this.playerNameText.setPosition(this.player.x, this.player.y - 30);
+        }
 
         if (
             this.prevState !== this.action ||
