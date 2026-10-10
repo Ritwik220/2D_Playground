@@ -275,7 +275,7 @@ app.post("/auth/register/", async (req, res, next) => {
 app.get("/auth/me", (req, res) => {
     console.log("The stored user is "+req.user);
     if(req.user) {
-        res.send(201).json({
+        res.json({
             authenticated: true,
             user: req.user,
         })
