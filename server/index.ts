@@ -97,7 +97,7 @@ const port = process.env.PORT || 3000;
 io.on("connection", async (socket) => {
     // setup
     console.log("Player connected", socket.id);
-    socket.join("global room");
+    // socket.join("global room");
 
     /*
     CREATE TABLE users (
@@ -119,16 +119,17 @@ io.on("connection", async (socket) => {
             [user.user_name]
         )
     console.log(user.display_name+ " joined");
-
+    const db_user = response.rows[0]
     players.set(socket.id, {
         id: socket.id,
-        x: user.save_spot.x,
-        y: user.save_spot.y,
+        x: db_user.save_spot.x,
+        y: db_user.save_spot.y,
         direction: "up",
         action: "idle",
         username: user.user_name,
         user_id: user.id
     })
+    console.log(user.save_spot, db_user.save_spot, user.save_spot == db_user.save_spot);
 
     socket.emit("players", Array.from(players.values()));
 
