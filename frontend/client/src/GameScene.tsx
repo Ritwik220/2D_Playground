@@ -239,8 +239,16 @@ export default class GameScene extends Phaser.Scene {
                 player.y,
                 "idle_up"
             );
+            const name_tag = this.add.text(0, 0, player.display_name, {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#FFFFFF',
+                stroke: '#000000',
+                strokeThickness: 2
+            })
             this.physics.add.collider(this.player, sprite);
             this.otherPlayers.set(player.id, sprite);
+            this.otherPlayerNameTags.set(player.id, name_tag);
         });
         // Move the sprite of the user(other than out player) that moved
         this.socket.on("player_moved", (player) => {
@@ -269,6 +277,8 @@ export default class GameScene extends Phaser.Scene {
 
             this.otherPlayers.delete(id);
             this.cleanupPeer(id);
+            this.otherPlayerNameTags.get(id)?.destroy();
+            this.otherPlayerNameTags.delete(id);
 
         });
         // Creating animations
@@ -453,8 +463,7 @@ export default class GameScene extends Phaser.Scene {
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
             if(name_tag) {
-                name_tag.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
-                name_tag.y = Phaser.Math.Linear(sprite.y - 30, targetX, 0.25);
+                name_tag.setPosition(sprite.x, sprite.y - 30);
             }
         });
     }
