@@ -28,7 +28,7 @@ export default class GameScene extends Phaser.Scene {
     private prevState = "idle";
     private stateChanged = false;
     // spawn postion
-    private spawnPosition = {x: 300, y: 400};
+    // private spawnPosition = {x: 300, y: 400};
     // Web socket variable
     private socket!: Socket;
     // variable that defines what action the player needs to take
@@ -200,15 +200,17 @@ export default class GameScene extends Phaser.Scene {
             });
         });
         this.socket.on("spawn position", (position) => {
-            console.log("in spawn position");
-            this.spawnPosition = position;
+            console.log("in spawn");
+            if(!this.player) return;
 
             // Adding our player
             this.player = this.physics.add.sprite(
-                this.spawnPosition.x,
-                this.spawnPosition.y,
+                position.x,
+                position.y,
                 "idle_up"
             );
+
+            this.player.anims.play("idle_up", true);
         });
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", (player) => {
@@ -264,8 +266,7 @@ export default class GameScene extends Phaser.Scene {
 
 
 
-
-        this.player.anims.play("idle_up", true);
+        
 
         // --- Voice signaling ---
 
