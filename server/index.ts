@@ -94,7 +94,7 @@ const voiceReadyPeers = new Set<string>();
 const port = process.env.PORT || 3000;
 
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
     // setup
     console.log("Player connected", socket.id);
     socket.join("global room");
@@ -112,6 +112,12 @@ io.on("connection", (socket) => {
     // getting the user object
     const req = socket.request as any;
     const user = req?.user;
+    const response = await db.query(
+        `SELECT save_spot
+             FROM users
+             WHERE user_name = $1`,
+            [user.user_name]
+        )
     console.log(user.display_name+ " joined");
 
     players.set(socket.id, {
@@ -184,7 +190,7 @@ io.on("connection", (socket) => {
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         console.log("Player disconnected: ", socket.id);
-        const new_save_spot = {
+        user.save_spot = {
             x: player.x,
             y: player.y
         };
@@ -193,7 +199,7 @@ io.on("connection", (socket) => {
              SET save_spot = $1 
              WHERE id = $2;
             `,
-            [new_save_spot, user.id]
+            [user.save_spot, user.id]
         )
         players.delete(socket.id);
     })
