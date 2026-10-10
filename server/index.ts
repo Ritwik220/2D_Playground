@@ -182,7 +182,7 @@ app.post("/auth/login/", (req, res, next) => {
         }
 
         if (!user) {
-            return res.status(401).json({
+            return res.json({
                 message: "Invalid username or password",
                 code: 0
             });
