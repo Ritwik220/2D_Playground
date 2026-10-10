@@ -190,10 +190,7 @@ app.post("/auth/login/", (req, res, next) => {
         console.log(user + "logged in");
         req.logIn(user, (err) => {
             if (err) {
-                return res.json({
-                    message: "Username not found",
-                    code: 0
-                });
+                return next(err);
             }
 
             return res.status(201).json({

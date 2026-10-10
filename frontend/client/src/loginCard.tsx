@@ -43,6 +43,8 @@ export default function LoginCard() {
                 }
             }
             else {
+                const err_stat = document.querySelector("#error");
+                  err_stat!.innerHTML = "Username not found";
                 console.log("Submission failed");
             }
         }
