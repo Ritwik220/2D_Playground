@@ -201,6 +201,9 @@ io.on("connection", async (socket) => {
             `,
             [user.save_spot, user.id]
         )
+        req.session.save((err: any) => {
+            if (err) console.error("Failed to save session:", err);
+        });
         players.delete(socket.id);
     })
 
