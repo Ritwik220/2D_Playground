@@ -183,14 +183,17 @@ app.post("/auth/login/", (req, res, next) => {
 
         if (!user) {
             return res.json({
-                message: "Invalid username or password",
+                message: "Invalid password",
                 code: 0
             });
         }
         console.log(user + "logged in");
         req.logIn(user, (err) => {
             if (err) {
-                return next(err);
+                return res.json({
+                    message: "Username not found",
+                    code: 0
+                });
             }
 
             return res.status(201).json({
