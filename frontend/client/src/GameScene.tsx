@@ -206,7 +206,7 @@ export default class GameScene extends Phaser.Scene {
                 color: '#FFFFFF',
                 stroke: '#000000',
                 strokeThickness: 2
-                })
+                }).setOrigin(0.5)
                 this.physics.add.collider(this.player, sprite);
                 this.otherPlayers.set(player.id, sprite);
                 this.otherPlayerNameTags.set(player.id, name_tag);
@@ -245,7 +245,7 @@ export default class GameScene extends Phaser.Scene {
                 color: '#FFFFFF',
                 stroke: '#000000',
                 strokeThickness: 2
-            })
+            }).setOrigin(0.5)
             this.physics.add.collider(this.player, sprite);
             this.otherPlayers.set(player.id, sprite);
             this.otherPlayerNameTags.set(player.id, name_tag);
