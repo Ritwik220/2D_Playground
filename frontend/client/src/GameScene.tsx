@@ -200,7 +200,7 @@ export default class GameScene extends Phaser.Scene {
                     player.y,
                     "idle_up"
                 );
-                const name_tag = this.add.text(0, 0, player.display_name, {
+                const name_tag = this.add.text(player.x, player.y-30, player.display_name, {
                 fontFamily: 'Arial',
                 fontSize: '14px',
                 color: '#FFFFFF',
@@ -239,7 +239,7 @@ export default class GameScene extends Phaser.Scene {
                 player.y,
                 "idle_up"
             );
-            const name_tag = this.add.text(0, 0, player.display_name, {
+            const name_tag = this.add.text(player.x, player.y - 30, player.display_name, {
                 fontFamily: 'Arial',
                 fontSize: '14px',
                 color: '#FFFFFF',
