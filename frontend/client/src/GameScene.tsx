@@ -35,7 +35,7 @@ export default class GameScene extends Phaser.Scene {
     private action = "idle";
     // Player sprite
     private player!: Phaser.Physics.Arcade.Sprite;
-    private playerNameText : Phaser.GameObjects.Text = this.add.text(0, 0, "");
+    private playerNameText? : Phaser.GameObjects.Text;
     // Initializing the virtual joystick
     private joystick!: VirtualJoystick;
     // Initializing the keys that are needed
