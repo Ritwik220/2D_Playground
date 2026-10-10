@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PhaserGame from "./PhaserGame";
 // import LoginCard from "./loginCard";
 import { useNavigate } from "react-router-dom";
+import GlobalChat from "./globalChat";
 
 
 const url = import.meta.env.VITE_BACKEND_URL  || "http://localhost:3000/";
@@ -48,7 +49,12 @@ export default function AuthCheck() {
     }
 
     if (authenticated) {
-        return <PhaserGame />;
+        return (
+        <div>
+            <GlobalChat />
+            <PhaserGame />
+        </div>
+    );
     }
     
     navigate("/login", {replace: true});
