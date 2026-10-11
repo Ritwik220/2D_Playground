@@ -48,14 +48,20 @@ export default function AuthCheck() {
         return <div>Loading...</div>;
     }
 
+    // AuthCheck.tsx
     if (authenticated) {
         return (
-        <div>
-            <GlobalChat />
+        <div className="relative w-screen h-screen overflow-hidden bg-black">
+            {/* The Game serves as the background canvas layer */}
             <PhaserGame />
+            
+            {/* The Chat layer floats pinned to a corner above it */}
+            <div className="absolute top-4 right-4 z-50 w-80 max-h-[80vh] flex flex-col">
+                <GlobalChat />
+            </div>
         </div>
-    );
+        );
     }
-    
+
     navigate("/login", {replace: true});
 }

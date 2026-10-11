@@ -51,39 +51,45 @@ export default function GlobalChat() {
     }, []);
 
     return (
-        <div id="globalChat" className="flex flex-col w-1/12 h-screen">
+        // Changed `h-screen` to a flex layout with drop shadows and rounded corners
+        <div id="globalChat" className="flex flex-col max-h-inherit bg-slate-900/90 text-white rounded-xl shadow-2xl border border-slate-700 backdrop-blur-md overflow-hidden">
+            
+            {/* Header / Toggle area */}
             <div
                 id="globalChatIcon"
-                className="relative w-12 h-12 p-4 bg-blue-600 border border-blue-700 hover:bg-blue-900 transition-colors rounded-lg shadow-sm"
+                className="relative flex items-center justify-between h-12 px-4 bg-slate-800 border-b border-slate-700"
             >
+                <span className="font-semibold text-sm">Global Chat</span>
                 <button
                     type="button"
-                    className="absolute top-2 right-2 p-1 text-gray-400 rounded-md transition-colors"
+                    className="p-1 hover:bg-slate-700 rounded-md transition-colors"
                     aria-label="Toggle global chat"
                     onClick={clickButton}
                 >
                     <img
-                        className="object-cover"
+                        className="w-6 h-6 object-cover invert" // added invert if your icon is dark
                         src="/global-communication.png"
                         alt="Global chat"
                     />
                 </button>
             </div>
 
+            {/* Chat Body expands when open */}
             {isOpen && (
-                <div id="globalChatUI" className="flex-1 min-h-0">
+                <div id="globalChatUI" className="flex flex-col flex-1 min-h-0 p-3 space-y-2 max-h-[50vh]">
                     {messagesLoaded ? (
                         <>
                             <ChatUI messages={messages} />
                             <button
                                 type="button"
+                                className="text-xs text-blue-400 hover:text-blue-300 text-left pt-1"
                                 onClick={() => loadMessages(numberLoaded)}
                             >
-                                Load more
+                                ↑ Load older messages
                             </button>
                         </>
                     ) : (
-                        <p>Failed to load messages.</p>
+                        <p className="text-sm text-red-400">Failed to load messages.</p>
                     )}
                 </div>
             )}
