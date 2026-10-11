@@ -535,6 +535,63 @@ app.post('/api/chats/:senderId/:receiverId', async (req, res) => {
     }
 })
 
+/*
+CREATE TABLE global_chat_messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL REFERENCES users(id),
+    username TEXT unique NOT NULL REFERENCES user(user_name),
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ */
+/* ------------------------------------------GET REQUESTS---------------------------------------------------*/
+app.get("api/global/messages", async (req, res) => {
+    try{
+        const result = await db.query(
+            `SELECT id, username, message, created_at
+             FROM users`
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "No users found"
+            });
+        }
+
+        res.json(result.rows);
+    }
+    catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
+})
+
+
+/* --------------------------------------- POST REQUESTS ---------------------------------------------------*/
+app.post("api/global/messages/:senderId/:username", async (req, res) => {
+    const senderId = Number(req.params.senderId);
+    const username = req.params.username;
+    const message = req.body;
+    try {
+        const result = await db.query(`INSERT INTO chat_messages
+                      (sender_id, username, message)
+                      VALUES ($1, $2, $3) RETURNING id, sender_id, receiver_id, message, created_at`,
+                      [senderId, username, message]);
+        res.status(201).json(result.rows[0]);
+    }
+    catch(error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Database error"
+        });
+    }
+})
+
+
+
 // Authentication strategy
 passport.use(new Strategy(async function verify(username, password, cb) {
     var foundUser = false;
