@@ -240,11 +240,13 @@ export default class GameScene extends Phaser.Scene {
         // Adding all the players online on the client screen
         this.socket.on("players", (players: any[]) => {
             for (const player of players) {
+                console.log(player.user_name);
                 this.addOrUpdateOtherPlayer(player);
             }
         });
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", (player: any) => {
+            console.log(player.user_name);
             this.addOrUpdateOtherPlayer(player);
         });
 
