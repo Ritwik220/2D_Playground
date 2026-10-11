@@ -194,7 +194,7 @@ export default class GameScene extends Phaser.Scene {
             players.forEach((player: any) => {
 
                 if (player.id === this.socket.id) return;
-
+                if(this.otherPlayers.has(player.id)) return;
                 const sprite = this.physics.add.sprite(
                     player.x,
                     player.y,
@@ -251,7 +251,8 @@ export default class GameScene extends Phaser.Scene {
                 stroke: '#000000',
                 strokeThickness: 2
             }).setOrigin(0.5)
-            this.physics.add.collider(this.player, sprite);
+            if(this.player)
+                this.physics.add.collider(this.player, sprite);
             this.otherPlayers.set(player.id, sprite);
             this.otherPlayerNameTags.set(player.id, name_tag);
         });
