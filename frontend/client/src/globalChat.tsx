@@ -21,7 +21,7 @@ export default function GlobalChat() {
     const loadMessages = async (offset: number) => {
         try {
             const response = await fetch(
-                `/api/global/chats/${offset}`,
+                `api/global/messages/${offset}`,
                 {
                     method: "GET",
                     headers: {
