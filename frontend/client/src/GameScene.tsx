@@ -234,6 +234,11 @@ export default class GameScene extends Phaser.Scene {
         });
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", (player) => {
+            // if the player is our player
+            if(player.id == this.socket.id) return;
+            // if the player is already rendered
+            if(this.otherPlayers.has(player.id)) return;
+            
             const sprite = this.physics.add.sprite(
                 player.x,
                 player.y,
