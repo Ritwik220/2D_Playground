@@ -287,6 +287,14 @@ export default class GameScene extends Phaser.Scene {
             this.otherPlayerNameTags.delete(id);
 
         });
+
+        this.socket.on("disconnected", () => {
+            if(!this.player) return;
+            this.player.destroy();
+
+            if(!this.playerNameText) return;
+            this.playerNameText.destroy();
+        })
         // Creating animations
         this.Actions.forEach((action: string) => {
             this.directions.forEach((dir: string) => {

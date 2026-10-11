@@ -238,6 +238,7 @@ io.on("connection", async (socket) => {
         if(!player) return;
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
+        socket.emit("disconnected");
         console.log("Player disconnected: ", socket.id);
         user.save_spot = {
             x: player.x,
