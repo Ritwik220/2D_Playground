@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Form } from "react-router-dom";
 import {io} from "socket.io-client"
 
 interface Message {
@@ -61,14 +60,14 @@ export default function ChatUI({ messages }: ChatUIProps) {
             </div>
 
             {/* Input Element */}
-            <Form onSubmit={onSumbit}>
+            <form onSubmit={onSumbit}>
             <input
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a message..."
             />
-            </Form>
+            </form>
         </div>
     );
 }
