@@ -81,6 +81,54 @@ export default class GameScene extends Phaser.Scene {
 
     }
 
+
+    // helper function
+    private addOrUpdateOtherPlayer(player: any) {
+        if (!player?.id || player.id === this.socket.id) return;
+
+        const existing = this.otherPlayers.get(player.id);
+
+        // The player already exists. Update it instead of creating a duplicate.
+        if (existing) {
+            existing.setData("targetX", player.x);
+            existing.setData("targetY", player.y);
+
+            const nameTag = this.otherPlayerNameTags.get(player.id);
+            nameTag?.setText(player.display_name ?? "");
+            return;
+        }
+
+        const sprite = this.physics.add.sprite(
+            player.x,
+            player.y,
+            "idle_down"
+        );
+
+        sprite.setData("targetX", player.x);
+        sprite.setData("targetY", player.y);
+
+        const nameTag = this.add.text(
+            player.x,
+            player.y - 30,
+            player.display_name ?? "",
+            {
+                fontFamily: "Arial",
+                fontSize: "14px",
+                color: "#FFFFFF",
+                stroke: "#000000",
+                strokeThickness: 2
+            }
+        ).setOrigin(0.5);
+
+        if (this.player) {
+            this.physics.add.collider(this.player, sprite);
+        }
+
+        this.otherPlayers.set(player.id, sprite);
+        this.otherPlayerNameTags.set(player.id, nameTag);
+    }
+
+
     private createPeerConnection(peer_id:string) {
         // Creating a peer connection
         const peer = new RTCPeerConnection({iceServers: ICE_SERVERS});
@@ -190,28 +238,16 @@ export default class GameScene extends Phaser.Scene {
         });
 
         // Adding all the players online on the client screen
-        this.socket.on("players", (players) => {
-            players.forEach((player: any) => {
-
-                if (player.id === this.socket.id) return;
-                if(this.otherPlayers.has(player.id)) return;
-                const sprite = this.physics.add.sprite(
-                    player.x,
-                    player.y,
-                    "idle_up"
-                );
-                const name_tag = this.add.text(player.x, player.y-30, player.display_name, {
-                fontFamily: 'Arial',
-                fontSize: '14px',
-                color: '#FFFFFF',
-                stroke: '#000000',
-                strokeThickness: 2
-                }).setOrigin(0.5)
-                this.physics.add.collider(this.player, sprite);
-                this.otherPlayers.set(player.id, sprite);
-                this.otherPlayerNameTags.set(player.id, name_tag);
-            });
+        this.socket.on("players", (players: any[]) => {
+            for (const player of players) {
+                this.addOrUpdateOtherPlayer(player);
+            }
         });
+        // When a new player joins he gets added in the scene too
+        this.socket.on("player_joined", (player: any) => {
+            this.addOrUpdateOtherPlayer(player);
+        });
+
         this.socket.on("spawn player", (position, user) => {
             console.log("in spawn");
             if(this.player) return;
@@ -231,30 +267,6 @@ export default class GameScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             this.player.anims.play("idle_up", true);
-        });
-        // When a new player joins he gets added in the scene too
-        this.socket.on("player_joined", (player) => {
-            // if the player is our player
-            if(player.id == this.socket.id) return;
-            // if the player is already rendered
-            if(this.otherPlayers.has(player.id)) return;
-            
-            const sprite = this.physics.add.sprite(
-                player.x,
-                player.y,
-                "idle_up"
-            );
-            const name_tag = this.add.text(player.x, player.y - 30, player.display_name, {
-                fontFamily: 'Arial',
-                fontSize: '14px',
-                color: '#FFFFFF',
-                stroke: '#000000',
-                strokeThickness: 2
-            }).setOrigin(0.5)
-            if(this.player)
-                this.physics.add.collider(this.player, sprite);
-            this.otherPlayers.set(player.id, sprite);
-            this.otherPlayerNameTags.set(player.id, name_tag);
         });
         // Move the sprite of the user(other than out player) that moved
         this.socket.on("player_moved", (player) => {

@@ -117,8 +117,12 @@ io.on("connection", async (socket) => {
     const user = req?.user;
 
     const oldUser = userSockets.get(user.id);
-    if(oldUser) io.sockets.sockets.get(oldUser)?.disconnect(true);
+
     userSockets.set(user.id, socket.id);
+
+    if (oldUser && oldUser !== socket.id) {
+        io.sockets.sockets.get(oldUser)?.disconnect(true);
+    }
 
     console.log(user.display_name+ " joined");
 
@@ -244,6 +248,9 @@ io.on("connection", async (socket) => {
     socket.on("disconnect", async () => {
         const player = players.get(socket.id);
         if(!player) return;
+        if (userSockets.get(user.id) === socket.id) {
+            userSockets.delete(user.id);
+        }
         voiceReadyPeers.delete(socket.id);
         socket.broadcast.emit("player_left", socket.id);
         socket.emit("disconnected");
