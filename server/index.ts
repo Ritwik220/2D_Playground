@@ -129,7 +129,10 @@ io.on("connection", async (socket) => {
     socket.emit("spawn player", user.save_spot, user);
 
     // sending the username to the chat ui
-    socket.emit("chat_ready", user.user_name);
+    if(user.user_name)
+        socket.emit("chat_ready", user.user_name);
+    else
+        socket.emit("chat_ready", user.username);
 
 
     /*
