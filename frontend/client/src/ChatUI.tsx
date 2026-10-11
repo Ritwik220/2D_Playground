@@ -32,9 +32,11 @@ export default function ChatUI({ messages }: ChatUIProps) {
         e.preventDefault();
         if(!username) return;
         console.log("on submit entered");
-        if(input != "") {
-            socket.emit("chat message sent", {message: input, username: username});
+        const inputText = document.getElementById("#input")?.innerHTML;
+        if(inputText != "") {
+            socket.emit("chat message sent", {message: inputText, username: username});
             setInput("");
+            document.getElementById("#input")!.innerHTML = "";
         }
     }
     socket.on("chat recieved", (message, username, created_at, id) => {
@@ -67,6 +69,7 @@ export default function ChatUI({ messages }: ChatUIProps) {
             {/* Input Element */}
             <form onSubmit={onSumbit}>
             <input
+                id="input"
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
