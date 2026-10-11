@@ -26,6 +26,8 @@ export default function ChatUI({ messages }: ChatUIProps) {
     })
 
     const onSumbit = (e: any) => {
+        if(!username) return;
+        console.log("on submit entered");
         e.preventDefault();
         if(input != "") {
             socket.emit("chat message sent", {message: input, username: username});
