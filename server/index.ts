@@ -31,6 +31,9 @@ async function hashPassword(password: string) :Promise<string> {
 
 testDB();
 db.connect();
+// Tracking users
+const userSockets = new Map<Number, string>();
+
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -112,6 +115,11 @@ io.on("connection", async (socket) => {
     // getting the user object
     const req = socket.request as any;
     const user = req?.user;
+
+    const oldUser = userSockets.get(user.id);
+    if(oldUser) io.sockets.sockets.get(oldUser)?.disconnect(true);
+    userSockets.set(user.id, socket.id);
+
     console.log(user.display_name+ " joined");
 
     players.set(socket.id, {
