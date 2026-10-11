@@ -21,9 +21,12 @@ export default function ChatUI({ messages }: ChatUIProps) {
     const [username, setUsername] = useState("");
     // flip will be multiplied by -1 whenever we want to re run the component
     const [flip, setFlip] = useState(1);
-    socket.on("chat ready", (username) => {
-        setUsername(username)
-    })
+    if(!username) {
+        socket.emit("send username");
+        socket.on("chat ready", (username) => {
+            setUsername(username)
+        })
+    }
 
     const onSumbit = (e: any) => {
         e.preventDefault();
