@@ -116,29 +116,39 @@ io.on("connection", async (socket) => {
     const req = socket.request as any;
     const user = req?.user;
 
-    const oldUser = userSockets.get(user.id);
+    // getting save spot from the database
+    const response = await db.query(
+        `SELECT *
+             FROM users
+             WHERE user_name = $1`,
+            [user.user_name]
+        )
+    console.log(user.display_name+ " joined");
 
-    userSockets.set(user.id, socket.id);
+    const db_user = response.rows[0]
+    const oldUser = userSockets.get(db_user.id);
+
+    userSockets.set(db_user.id, socket.id);
 
     if (oldUser && oldUser !== socket.id) {
         io.sockets.sockets.get(oldUser)?.disconnect(true);
     }
 
-    console.log(user.display_name+ " joined");
+    console.log(db_user.display_name+ " joined");
 
     players.set(socket.id, {
         id: socket.id,
-        x: user.save_spot.x,
-        y: user.save_spot.y,
+        x: db_user.save_spot.x,
+        y: db_user.save_spot.y,
         direction: "up",
         action: "idle",
-        username: user.user_name,
-        user_id: user.id,
-        display_name: user.display_name
+        username: db_user.user_name,
+        user_id: db_user.id,
+        display_name: db_user.display_name
     })
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
-    socket.emit("spawn player", user.save_spot, user);
+    socket.emit("spawn player", db_user.save_spot, user);
 
     // sending the username to the chat ui
     socket.on("send username", () => {
