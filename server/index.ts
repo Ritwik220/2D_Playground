@@ -550,7 +550,7 @@ app.get("/api/global/messages/", async (req, res) => {
     try{
         const result = await db.query(
             `SELECT id, username, message, created_at
-             FROM users`
+             FROM global_chat_messages`
         );
         if (result.rows.length === 0) {
             return res.status(404).json({
