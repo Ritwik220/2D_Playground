@@ -10,7 +10,7 @@ interface Message {
 
 export default function GlobalChat() {
     const [messages, setMessages] = useState<Message[]>([]);
-    const [messagesLoaded, setMessagesLoaded] = useState(true);
+    const [messagesLoaded, setMessagesLoaded] = useState(false);
     const [numberLoaded, setNumberLoaded] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -38,12 +38,10 @@ export default function GlobalChat() {
                 setNumberLoaded(offset + data.length);
                 setMessagesLoaded(true);
             } else {
-                setMessagesLoaded(false);
                 console.log(response.json());
             }
         } catch (err) {
             console.error(err);
-            setMessagesLoaded(false);
         }
     };
 
