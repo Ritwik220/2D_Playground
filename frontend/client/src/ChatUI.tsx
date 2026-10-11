@@ -32,11 +32,11 @@ export default function ChatUI({ messages }: ChatUIProps) {
         e.preventDefault();
         if(!username) return;
         console.log("on submit entered");
-        const inputText = document.getElementById("#input")?.innerHTML;
+        const inputText = document.getElementById("input")?.innerHTML;
         if(inputText != "") {
             socket.emit("chat message sent", {message: inputText, username: username});
             setInput("");
-            document.getElementById("#input")!.innerHTML = "";
+            document.getElementById("input")!.innerHTML = "";
         }
     }
     socket.on("chat recieved", (message, username, created_at, id) => {
