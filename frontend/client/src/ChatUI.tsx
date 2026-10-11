@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-interface Message {
-    id: number;
-    username: string;
-    message: string;
-    created_at: string;
-}
+// interface Message {
+//     id: number;
+//     username: string;
+//     message: string;
+//     created_at: string;
+// }
 
 interface ChatUIProps {
-    messages: Message[];
+    messages: Object;
 }
 
 export default function ChatUI({ messages }: ChatUIProps) {

@@ -396,7 +396,7 @@ app.get("/api/users/:id", async (req, res) => {
     }
 });
 
-app.get("api/users/:username", async (req, res) => {
+app.get("/api/users/:username", async (req, res) => {
      const username = Number(req.params.username);
 
     try {
@@ -545,7 +545,8 @@ CREATE TABLE global_chat_messages (
 );
  */
 /* ------------------------------------------GET REQUESTS---------------------------------------------------*/
-app.get("api/global/messages", async (req, res) => {
+// getting the first 10 position from the position pos
+app.get("api/global/messages/:pos", async (req, res) => {
     try{
         const result = await db.query(
             `SELECT id, username, message, created_at

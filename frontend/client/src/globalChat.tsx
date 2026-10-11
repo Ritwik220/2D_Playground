@@ -2,13 +2,37 @@ import { useState } from "react"
 import ChatUI from "./ChatUI";
 
 
-export default function GlobalChat() {
+export default async function GlobalChat() {
+    const [messages, setMessages] = useState({});
+    const [messagesLoaded, setMessagesLoaded] = useState(true);
+    const [numberLoaded, setNumberLoaded] = useState(0);
+    
     const [isOpen, setIsOpen] = useState(false);
     const clickButton = () => {
       if(isOpen)
         setIsOpen(true);
       else
         setIsOpen(false);
+    }
+    try{
+      const response = await fetch(`api/global/chats/{numberLoaded}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json" // Readies the server for json data
+                },
+                credentials: "include",
+            });
+      if(response.ok) {
+        setMessagesLoaded(true);
+        setMessages(response.json())
+        setNumberLoaded(numberLoaded+10);
+      }
+      else {
+        setMessagesLoaded(false);
+      }
+    }
+    catch(err) {
+      setMessagesLoaded(false);
     }
 
     return (
@@ -19,7 +43,7 @@ export default function GlobalChat() {
             </button>
           </div>
           <div id="#globalChatUI">
-            {<ChatUI />}
+            {messagesLoaded?<ChatUI messages={messages}/>:<p>404</p>}
           </div>
         </div>
     )
