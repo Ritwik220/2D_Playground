@@ -546,7 +546,7 @@ CREATE TABLE global_chat_messages (
  */
 /* ------------------------------------------GET REQUESTS---------------------------------------------------*/
 // getting the first 10 position from the position pos
-app.get("api/global/messages/:pos", async (req, res) => {
+app.get("/api/global/messages/:pos", async (req, res) => {
     const pos = Number(req.params.pos);
     try{
         const result = await db.query(
