@@ -51,7 +51,7 @@ export default function GlobalChat() {
     }, []);
 
     return (
-        <div id="globalChat" className="flex flex-col w-2/6 h-screen">
+        <div id="globalChat" className="flex flex-col w-1/12 h-screen">
             <div
                 id="globalChatIcon"
                 className="relative w-12 h-12 p-4 bg-blue-600 border border-blue-700 hover:bg-blue-900 transition-colors rounded-lg shadow-sm"
