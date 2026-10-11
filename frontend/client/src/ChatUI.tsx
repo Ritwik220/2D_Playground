@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Form } from "react-router-dom";
-import {Socket, io} from "socket.io-client"
+import {io} from "socket.io-client"
 
 interface Message {
     id: number;
