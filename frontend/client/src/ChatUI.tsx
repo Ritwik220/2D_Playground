@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Form } from "react-router-dom";
+import {Socket, io} from "socket.io-client"
 
 interface Message {
     id: number;
@@ -11,8 +13,36 @@ interface ChatUIProps {
     messages: Message[];
 }
 
+const socket = io({
+            transports: ["websocket"]
+});
+
 export default function ChatUI({ messages }: ChatUIProps) {
     const [input, setInput] = useState("");
+    const [username, setUsername] = useState("");
+    // flip will be multiplied by -1 whenever we want to re run the component
+    const [flip, setFlip] = useState(1);
+    socket.on("chat ready", (username) => {
+        setUsername(username)
+    })
+
+    const onSumbit = (e: any) => {
+        e.preventDeafault();
+        if(input != "") {
+            socket.emit("chat message sent", {message: input, username: username});
+            setInput("");
+        }
+    }
+    socket.on("chat recieved", (message, username, created_at, id) => {
+        const mes_obj: Message = {
+            id: id,
+            username: username,
+            message: message,
+            created_at: created_at
+        }
+        messages.push(mes_obj);
+        setFlip(flip * -1);
+    })
 
     return (
         <div className="flex h-full flex-col min-h-0">
@@ -31,12 +61,14 @@ export default function ChatUI({ messages }: ChatUIProps) {
             </div>
 
             {/* Input Element */}
+            <Form onSubmit={onSumbit}>
             <input
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type a message..."
             />
+            </Form>
         </div>
     );
 }

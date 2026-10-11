@@ -128,6 +128,55 @@ io.on("connection", async (socket) => {
     // sending the spawn position so that the sprite in the frontend can be created accordingly
     socket.emit("spawn player", user.save_spot, user);
 
+    // sending the username to the chat ui
+    socket.emit("chat_ready", user.user_name);
+
+
+    /*
+    CREATE TABLE global_chat_messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL REFERENCES users(id),
+    username TEXT unique NOT NULL REFERENCES user(user_name),
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    */
+
+    // getting message
+    socket.on("chat message sent", async (message:string, username:string) => {
+        const sender_req = await db.query(
+            `SELECT id
+             FROM users
+             WHERE id = $1`,
+            [username]
+            );
+        if(sender_req.rows.length === 0 ) {
+            console.log("No user with the specified username found. Username: ", username);
+            return;
+        }
+        const senderId = sender_req.rows[0].id;
+       try {
+            const insert = await db.query(
+                `INSERT INTO global_chat_messages (username, sender_id, message)
+                VALUES ($1, $2, $3)
+                RETURNING id, user_name, display_name, save_spot`,
+                [username, senderId, message]
+            );
+            if(insert.rows.length === 0) {
+                console.log(`data base insertion of the global message ${message} by ${username} failed`);
+                return;
+            }
+            const created_at = insert.rows[0].created_at;
+            const id = insert.rows[0].id;
+            io.emit("chat recieved", {message: message, username: username, created_at: created_at, id: id});
+       } catch(err)  {
+            console.log(`data base insertion of the global message ${message} by ${username} failed`);
+            console.error(err);
+       }
+
+        
+    })
+
     socket.emit("players", Array.from(players.values()));
 
     // Player joined broadcast
