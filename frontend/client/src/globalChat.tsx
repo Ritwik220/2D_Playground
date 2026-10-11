@@ -39,6 +39,7 @@ export default function GlobalChat() {
                 setMessagesLoaded(true);
             } else {
                 setMessagesLoaded(false);
+                console.log(response.json());
             }
         } catch (err) {
             console.error(err);
