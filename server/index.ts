@@ -552,7 +552,7 @@ app.get("/api/global/messages/:pos", async (req, res) => {
         const result = await db.query(
             `SELECT id, username, message, created_at
              FROM users
-             ORDER BY created_ar DESC
+             ORDER BY created_at DESC
              LIMIT 10
              OFFSET $1`,
              [pos]
