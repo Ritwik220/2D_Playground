@@ -26,7 +26,7 @@ export default function ChatUI({ messages }: ChatUIProps) {
     })
 
     const onSumbit = (e: any) => {
-        e.preventDeafault();
+        e.preventDefault();
         if(input != "") {
             socket.emit("chat message sent", {message: input, username: username});
             setInput("");
