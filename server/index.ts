@@ -148,6 +148,12 @@ io.on("connection", async (socket) => {
     })
     socket.join("global room");
 
+    console.log({
+        socketId: socket.id,
+        joinedGlobalRoom: socket.rooms.has("global room"),
+        rooms: [...socket.rooms]
+    });
+
     // sending the spawn position so that the sprite in the frontend can be created accordingly
     socket.emit("spawn player", db_user.save_spot, user);
 
@@ -207,7 +213,7 @@ io.on("connection", async (socket) => {
     // Player joined broadcast
     socket.broadcast.to("global room").emit(
         "player_joined",
-        {player: players.get(socket.id), user: user}
+        {player: players.get(socket.id)}
     );
 
     // movement
@@ -254,6 +260,10 @@ io.on("connection", async (socket) => {
             candidate
         });
     });
+
+    socket.on("connect_error", (err) => {
+        console.error("socket connection error: ", err)
+    })
 
     // Disconnect
     socket.on("disconnect", async () => {
