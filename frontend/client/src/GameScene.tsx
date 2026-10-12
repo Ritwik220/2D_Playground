@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
 
     // helper function
     private addOrUpdateOtherPlayer(player: any) {
-        if (player.id !== this.socket.id) return;
+        if (player.id === this.socket.id) return;
         console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id, this.player.getData("username"), player.username);
         const existing = this.otherPlayers.get(player.id);
         console.log("Added other player ", player.display_name);
