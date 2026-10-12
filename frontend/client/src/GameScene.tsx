@@ -234,14 +234,7 @@ export default class GameScene extends Phaser.Scene {
             this.joystickY = 0;
         });
         this.socket = io({
-            autoConnect: false,
-            transports: ["websocket"],
-            reconnection: true,             // Enable automatic reconnection (true by default)
-            reconnectionAttempts: Infinity, // Number of times to try reconnecting
-            reconnectionDelay: 5000,        // Initial delay before trying to reconnect (in ms)
-            reconnectionDelayMax: 10000,    // Maximum delay between reconnection attempts
-            randomizationFactor: 0.5        // Randomization to prevent all clients slamming the server
-
+            transports: ["websocket"]
         });
         this.socket.on("connect", () => {
             console.log("Player Connected:", this.socket.id);
@@ -324,19 +317,6 @@ export default class GameScene extends Phaser.Scene {
 
         });
 
-        this.socket.on("disconnect", (reason) => {
-            console.log(`Disconnected due to: ${reason}`);
-            if(!this.player) return;
-            this.player.destroy();
-
-            if(!this.playerNameText) return;
-            this.playerNameText.destroy();
-            // Edge Case: If the server manually disconnected the client, automatic reconnection skips.
-            // You must trigger it manually.
-            if (reason === "io server disconnect") {
-                this.socket.connect();
-            }
-        });
 
         this.socket.on("disconnected", () => {
             if(!this.player) return;
@@ -346,8 +326,6 @@ export default class GameScene extends Phaser.Scene {
             this.playerNameText.destroy();
         })
 
-        // Connecting the socket
-        this.socket.connect();
 
 
         // Creating animations
