@@ -50,11 +50,11 @@ export default class GameScene extends Phaser.Scene {
     private directions = ['up', 'down', 'left', 'right'];
     // A map for the other players
     private otherPlayers = new Map<
-        string,
+        Number,
         Phaser.Physics.Arcade.Sprite
     >();
     private otherPlayerNameTags = new Map<
-        string,
+        Number,
         Phaser.GameObjects.Text
     >();
 
@@ -83,17 +83,17 @@ export default class GameScene extends Phaser.Scene {
 
 
     // helper function
-    private addOrUpdateOtherPlayer(player: any) {
-        if (player.id === this.socket.id) return;
+    private addOrUpdateOtherPlayer(player: any, user: any) {
+        if (player.user_id === user.id) return;
         console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id, this.player.getData("username"), player.username);
-        const existing = this.otherPlayers.get(player.id);
+        const existing = this.otherPlayers.get(player.user_id);
         console.log("Added other player ", player.display_name);
         // The player already exists. Update it instead of creating a duplicate.
         if (existing) {
             existing.setData("targetX", player.x);
             existing.setData("targetY", player.y);
 
-            const nameTag = this.otherPlayerNameTags.get(player.id);
+            const nameTag = this.otherPlayerNameTags.get(player.user_id);
             nameTag?.setText(player.display_name ?? "");
             return;
         }
@@ -124,8 +124,8 @@ export default class GameScene extends Phaser.Scene {
             this.physics.add.collider(this.player, sprite);
         }
 
-        this.otherPlayers.set(player.id, sprite);
-        this.otherPlayerNameTags.set(player.id, nameTag);
+        this.otherPlayers.set(player.user_id, sprite);
+        this.otherPlayerNameTags.set(player.user_id, nameTag);
     }
 
 
@@ -265,23 +265,23 @@ export default class GameScene extends Phaser.Scene {
         // Adding all the players online on the client screen
         this.socket.on("players", ({players, user}) => {
             for (const player of players) {
-                if(Number(user.user_id) === Number(player.user_id)) continue;
+                if(Number(user.id) === Number(player.user_id)) continue;
                 console.log(player.user_name);
-                this.addOrUpdateOtherPlayer(player);
+                this.addOrUpdateOtherPlayer(player, user);
             }
         });
         // When a new player joins he gets added in the scene too
-        this.socket.on("player_joined", (player: any) => {
+        this.socket.on("player_joined", ({player, user}) => {
             console.log(player.user_name);
-            this.addOrUpdateOtherPlayer(player);
+            this.addOrUpdateOtherPlayer(player, user);
         });
 
         
         // Move the sprite of the user(other than out player) that moved
         this.socket.on("player_moved", (player) => {
-
-            this.addOrUpdateOtherPlayer(player);
-            const sprite = this.otherPlayers.get(player.id);
+            
+            // this.addOrUpdateOtherPlayer(player);
+            const sprite = this.otherPlayers.get(player.user_id);
 
             if (!sprite) return;
 
@@ -419,6 +419,7 @@ export default class GameScene extends Phaser.Scene {
     update(_time: number, _delta: number) {
         if(!this.player) return;
         this.joystick?.update();
+
 
         let moveX = 0;
         let moveY = 0;

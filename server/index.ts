@@ -207,7 +207,7 @@ io.on("connection", async (socket) => {
     // Player joined broadcast
     socket.broadcast.to("global room").emit(
         "player_joined",
-        players.get(socket.id)
+        {player: players.get(socket.id), user: user}
     );
 
     // movement
@@ -263,9 +263,9 @@ io.on("connection", async (socket) => {
             userSockets.delete(user.id);
         }
         voiceReadyPeers.delete(socket.id);
-        socket.broadcast.to("global room").emit("player_left", socket.id);
+        socket.broadcast.to("global room").emit("player_left", player.user_id);
         socket.emit("disconnected");
-        console.log("Player disconnected: ", socket.id);
+        console.log("Player disconnected: ", player.user_id);
         user.save_spot = {
             x: player.x,
             y: player.y
