@@ -234,6 +234,7 @@ export default class GameScene extends Phaser.Scene {
             this.joystickY = 0;
         });
         this.socket = io({
+            autoConnect: false,
             transports: ["websocket"],
             reconnection: true,             // Enable automatic reconnection (true by default)
             reconnectionAttempts: Infinity, // Number of times to try reconnecting
@@ -241,6 +242,9 @@ export default class GameScene extends Phaser.Scene {
             reconnectionDelayMax: 10000,    // Maximum delay between reconnection attempts
             randomizationFactor: 0.5        // Randomization to prevent all clients slamming the server
 
+        });
+        this.socket.on("connect", () => {
+            console.log("Player Connected:", this.socket.id);
         });
 
         this.socket.on("spawn player", (position, user) => {
@@ -337,6 +341,11 @@ export default class GameScene extends Phaser.Scene {
             if(!this.playerNameText) return;
             this.playerNameText.destroy();
         })
+
+        // Connecting the socket
+        this.socket.connect();
+
+
         // Creating animations
         this.Actions.forEach((action: string) => {
             this.directions.forEach((dir: string) => {
