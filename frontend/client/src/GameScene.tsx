@@ -495,7 +495,7 @@ export default class GameScene extends Phaser.Scene {
             moveX /= length;
             moveY /= length;
         }
-
+        if(!this.player || !this.player.body) return
         this.player.setVelocity(moveX * speed, moveY * speed);
         if(this.playerNameText) {
             this.playerNameText.setPosition(this.player.x, this.player.y - 30);
