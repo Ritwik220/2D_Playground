@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
 
     // helper function
     private addOrUpdateOtherPlayer(player: any) {
-        if (!player?.id || player.id === this.socket.id) return;
+        if (this.player && this.player.getData("username") === player.username) return;
         console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id);
         const existing = this.otherPlayers.get(player.id);
         console.log("Added other player ", player.display_name);
@@ -237,6 +237,28 @@ export default class GameScene extends Phaser.Scene {
             transports: ["websocket"]
         });
 
+        this.socket.on("spawn player", (position, user) => {
+            console.log("in spawn");
+            if(this.player) return;
+
+            // Adding our player
+            this.player = this.physics.add.sprite(
+                position.x,
+                position.y,
+                "idle_up"
+            );
+            this.player.setData("username", user.username);
+            this.playerNameText = this.add.text(0, 0, user.display_name, {
+                fontFamily: 'Arial',
+                fontSize: '14px',
+                color: '#FFD16A',
+                stroke: '#000000',
+                strokeThickness: 2
+            }).setOrigin(0.5);
+
+            this.player.anims.play("idle_up", true);
+        });
+
         // Adding all the players online on the client screen
         this.socket.on("players", (players: any[]) => {
             for (const player of players) {
@@ -250,26 +272,7 @@ export default class GameScene extends Phaser.Scene {
             this.addOrUpdateOtherPlayer(player);
         });
 
-        this.socket.on("spawn player", (position, user) => {
-            console.log("in spawn");
-            if(this.player) return;
-
-            // Adding our player
-            this.player = this.physics.add.sprite(
-                position.x,
-                position.y,
-                "idle_up"
-            );
-            this.playerNameText = this.add.text(0, 0, user.display_name, {
-                fontFamily: 'Arial',
-                fontSize: '14px',
-                color: '#FFD16A',
-                stroke: '#000000',
-                strokeThickness: 2
-            }).setOrigin(0.5);
-
-            this.player.anims.play("idle_up", true);
-        });
+        
         // Move the sprite of the user(other than out player) that moved
         this.socket.on("player_moved", (player) => {
 
