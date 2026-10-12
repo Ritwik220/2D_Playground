@@ -1,4 +1,4 @@
-import Phaser, { NONE } from "phaser";
+import Phaser from "phaser";
 import { EventBus } from "./EventBus";
 import { Socket, io } from "socket.io-client";
 import { VirtualJoystick } from "phaser-virtual-joystick";
