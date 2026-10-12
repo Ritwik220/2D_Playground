@@ -85,9 +85,9 @@ export default class GameScene extends Phaser.Scene {
     // helper function
     private addOrUpdateOtherPlayer(player: any) {
         if (!player?.id || player.id === this.socket.id) return;
-
+        console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id);
         const existing = this.otherPlayers.get(player.id);
-
+        console.log("Added other player ", player.display_name);
         // The player already exists. Update it instead of creating a duplicate.
         if (existing) {
             existing.setData("targetX", player.x);
