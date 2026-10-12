@@ -201,7 +201,7 @@ io.on("connection", async (socket) => {
         
     })
 
-    socket.emit("players", Array.from(players.values()));
+    socket.emit("players", {players: Array.from(players.values()), user: user});
 
     // Player joined broadcast
     socket.broadcast.emit(

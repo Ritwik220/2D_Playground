@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
 
     // helper function
     private addOrUpdateOtherPlayer(player: any) {
-        if (this.player && this.player.getData("username") === player.username) return;
+        if (player.id === this.socket.id, player.id) return;
         console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id, this.player.getData("username"), player.username);
         const existing = this.otherPlayers.get(player.id);
         console.log("Added other player ", player.display_name);
@@ -260,8 +260,9 @@ export default class GameScene extends Phaser.Scene {
         });
 
         // Adding all the players online on the client screen
-        this.socket.on("players", (players: any[]) => {
+        this.socket.on("players", ({players, user}) => {
             for (const player of players) {
+                if(user.user_id == players.user_id) continue;
                 console.log(player.user_name);
                 this.addOrUpdateOtherPlayer(player);
             }
