@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
 
     // helper function
     private addOrUpdateOtherPlayer(player: any, user: any) {
-        if (user != NONE && player.user_id === user.id) return;
+        if (user && player.user_id === user.id) return;
         console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id, this.player.getData("username"), player.username);
         const existing = this.otherPlayers.get(player.user_id);
         console.log("Added other player ", player.display_name);
@@ -283,7 +283,7 @@ export default class GameScene extends Phaser.Scene {
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", ({player}) => {
             console.log(player.user_name);
-            this.addOrUpdateOtherPlayer(player, NONE);
+            this.addOrUpdateOtherPlayer(player, null);
         });
 
         
@@ -291,9 +291,13 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on("player_moved", (player) => {
             
             // this.addOrUpdateOtherPlayer(player);
-            const sprite = this.otherPlayers.get(player.user_id);
+            var sprite = this.otherPlayers.get(player.user_id);
 
-            if (!sprite) return;
+            if (!sprite) {
+                this.addOrUpdateOtherPlayer(player, null);
+                sprite = this.otherPlayers.get(player.user_id);
+                if(!sprite) return;
+            }
 
             sprite.setData("targetX", player.x);
             sprite.setData("targetY", player.y);
