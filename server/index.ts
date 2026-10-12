@@ -146,6 +146,7 @@ io.on("connection", async (socket) => {
         user_id: db_user.id,
         display_name: db_user.display_name
     })
+    socket.join("global room");
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
     socket.emit("spawn player", db_user.save_spot, user);
@@ -204,7 +205,7 @@ io.on("connection", async (socket) => {
     socket.emit("players", {players: Array.from(players.values()), user: user});
 
     // Player joined broadcast
-    socket.broadcast.emit(
+    socket.broadcast.to("global room").emit(
         "player_joined",
         players.get(socket.id)
     );
@@ -219,7 +220,7 @@ io.on("connection", async (socket) => {
         player.y = data.y;
         player.direction = data.direction;
         player.action = data.action;
-        socket.broadcast.emit("player_moved", player);
+        socket.broadcast.to("global room").emit("player_moved", player);
     })
 
     // Voice readiness handshake.
@@ -262,7 +263,7 @@ io.on("connection", async (socket) => {
             userSockets.delete(user.id);
         }
         voiceReadyPeers.delete(socket.id);
-        socket.broadcast.emit("player_left", socket.id);
+        socket.broadcast.to("global room").emit("player_left", socket.id);
         socket.emit("disconnected");
         console.log("Player disconnected: ", socket.id);
         user.save_spot = {

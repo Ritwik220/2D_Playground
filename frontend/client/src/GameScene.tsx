@@ -84,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
 
     // helper function
     private addOrUpdateOtherPlayer(player: any) {
-        if (player.id !== this.socket.id, player.id) return;
+        if (player.id !== this.socket.id) return;
         console.log(!player.id, player.id === this.socket.id, player.id, this.socket.id, this.player.getData("username"), player.username);
         const existing = this.otherPlayers.get(player.id);
         console.log("Added other player ", player.display_name);
@@ -257,12 +257,15 @@ export default class GameScene extends Phaser.Scene {
             }).setOrigin(0.5);
 
             this.player.anims.play("idle_up", true);
+
+            this.socket.emit("player_spawned");
+            console.log(user.username, " has joined global room");
         });
 
         // Adding all the players online on the client screen
         this.socket.on("players", ({players, user}) => {
             for (const player of players) {
-                if(user.user_id == players.user_id) continue;
+                if(Number(user.user_id) === Number(player.user_id)) continue;
                 console.log(player.user_name);
                 this.addOrUpdateOtherPlayer(player);
             }
@@ -277,6 +280,7 @@ export default class GameScene extends Phaser.Scene {
         // Move the sprite of the user(other than out player) that moved
         this.socket.on("player_moved", (player) => {
 
+            this.addOrUpdateOtherPlayer(player);
             const sprite = this.otherPlayers.get(player.id);
 
             if (!sprite) return;
