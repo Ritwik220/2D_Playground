@@ -269,9 +269,11 @@ io.on("connection", async (socket) => {
     // set), and the new client creates offers to those peers. We do NOT
     // proactively tell existing peers about the new one, because that's
     // exactly the race that used to break voice chat.
-    socket.on("voice_ready", () => {
-        socket.emit("voice_ready_peers", Array.from(voiceReadyPeers));
+    socket.on("voice_ready", async () => {
+        const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
+        socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
         voiceReadyPeers.add(socket.id);
+        pubClient.sadd("voiceReadyPeers:global", socket.id);
     });
 
     socket.on("voice_offer", ({ target, offer }) => {
