@@ -304,6 +304,7 @@ io.on("connection", async (socket) => {
     // Disconnect
     socket.on("disconnect", async () => {
         const player = players.get(socket.id);
+        pubClient.hdel("players:global", socket.id);
         if(!player) return;
         if (userSockets.get(user.id) === socket.id) {
             userSockets.delete(user.id);
@@ -327,7 +328,6 @@ io.on("connection", async (socket) => {
             if (err) console.error("Failed to save session:", err);
         });
         players.delete(socket.id);
-        pubClient.hdel("players:global", socket.id);
     })
 
 })
