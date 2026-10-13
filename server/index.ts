@@ -9,10 +9,13 @@ import session from 'express-session';
 import passport, { authenticate } from 'passport';
 import { Strategy } from 'passport-local';
 import connectPgSimple from "connect-pg-simple";
+import {Redis} from 'ioredis';
+import { createAdapter } from '@socket.io/redis-adapter';
 
 const PgStore = connectPgSimple(session);
 
 
+// Defining the number of hash cycles
 const hash = 10;
 
 async function testDB() {
@@ -47,6 +50,8 @@ app.use(cors({
   methods: ["GET", "POST", "PATCH"],
   credentials: true
 }));
+
+
 
 
 
@@ -85,6 +90,26 @@ const io = new Server(httpServer, {
 })
 
 
+// Creating redis clients
+if(!process.env.REDIS_URL)
+    throw new Error("redis url not configured");
+
+const pubClient = new Redis(process.env.REDIS_URL);
+const subClient = pubClient.duplicate();
+
+io.adapter(createAdapter(pubClient, subClient));
+
+pubClient.on("error", (err) => {
+    console.error("Redis publisher error:", err);
+});
+
+subClient.on("error", (err) => {
+    console.error("Redis subscriber error:", err);
+});
+
+
+
+// Setting up the cache for the web socket connections
 io.engine.use(sessionMiddleware);
 io.engine.use(passport.initialize());
 io.engine.use(passport.session());
