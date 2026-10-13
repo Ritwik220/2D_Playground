@@ -242,7 +242,10 @@ export default class GameScene extends Phaser.Scene {
 
         this.socket.on("spawn player", (position, user) => {
             console.log("in spawn");
-            if(this.player) return;
+            if(this.player) {
+                console.log("PLayer sprite already exists"); 
+                return;
+            }
 
             // Adding our player
             this.player = this.physics.add.sprite(
@@ -268,14 +271,13 @@ export default class GameScene extends Phaser.Scene {
         // Adding all the players online on the client screen
         this.socket.on("players", ({players, user}) => {
             for (const player of players) {
-                if(Number(user.id) === Number(player.user_id)) continue;
-                console.log(player.user_name);
+                console.log(player.username, " joined");
                 this.addOrUpdateOtherPlayer(player, user);
             }
         });
         // When a new player joins he gets added in the scene too
         this.socket.on("player_joined", ({player}) => {
-            console.log(player.user_name);
+            console.log(player.username , " joined");
             this.addOrUpdateOtherPlayer(player, null);
         });
 
