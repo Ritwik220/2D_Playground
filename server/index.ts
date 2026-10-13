@@ -304,31 +304,45 @@ io.on("connection", async (socket) => {
     // Disconnect
     socket.on("disconnect", async () => {
         const player = players.get(socket.id);
-        pubClient.hdel("players:global", socket.id);
-        if(!player) return;
-        if (userSockets.get(user.id) === socket.id) {
-            userSockets.delete(user.id);
-        }
-        voiceReadyPeers.delete(socket.id);
-        socket.broadcast.to("global room").emit("player_left", player.user_id);
-        socket.emit("disconnected");
-        console.log("Player disconnected: ", player.user_id);
-        user.save_spot = {
-            x: player.x,
-            y: player.y
-        };
-        const response = await db.query(
-            `UPDATE users
-             SET save_spot = $1 
-             WHERE id = $2;
-            `,
-            [user.save_spot, user.id]
-        )
-        req.session.save((err: any) => {
-            if (err) console.error("Failed to save session:", err);
-        });
+
+        // Always clean up local and shared connection state
         players.delete(socket.id);
-    })
+        voiceReadyPeers.delete(socket.id);
+
+        try {
+            await Promise.all([
+                pubClient.hdel("players:global", socket.id),
+                pubClient.srem("voiceReadyPeers:global", socket.id)
+            ]);
+        } catch (err) {
+            console.error("Failed to clean up disconnected player:", err);
+        }
+
+        if (!player) return;
+
+        // Only the latest connection for this user may update their save spot
+        if (userSockets.get(db_user.id) === socket.id) {
+            userSockets.delete(db_user.id);
+
+            try {
+                await db.query(
+                    `UPDATE users
+                    SET save_spot = $1
+                    WHERE id = $2`,
+                    [{ x: player.x, y: player.y }, db_user.id]
+                );
+            } catch (err) {
+                console.error("Failed to save player position:", err);
+            }
+    }
+
+    socket.broadcast.to("global room").emit(
+        "player_left",
+        player.user_id
+    );
+
+    console.log("Player disconnected:", player.user_id);
+});
 
 })
 
