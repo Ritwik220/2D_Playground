@@ -327,6 +327,7 @@ io.on("connection", async (socket) => {
             if (err) console.error("Failed to save session:", err);
         });
         players.delete(socket.id);
+        pubClient.hdel("players:global", socket.id);
     })
 
 })
