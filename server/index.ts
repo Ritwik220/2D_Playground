@@ -161,7 +161,8 @@ io.on("connection", async (socket) => {
 
     console.log(db_user.display_name+ " joined");
 
-    players.set(socket.id, {
+    // defining the player state
+    const player = {
         id: socket.id,
         x: db_user.save_spot.x,
         y: db_user.save_spot.y,
@@ -170,7 +171,12 @@ io.on("connection", async (socket) => {
         username: db_user.user_name,
         user_id: db_user.id,
         display_name: db_user.display_name
-    })
+    };
+
+    
+    // Adding the player in the local map(for quick access during movement) and redis shared player map(for sprite creation across instances)
+    players.set(socket.id, player);
+    await pubClient.hset("players:global", socket.id, JSON.stringify(player));
     socket.join("global room");
 
     console.log({
@@ -233,7 +239,10 @@ io.on("connection", async (socket) => {
         
     })
 
-    socket.emit("players", {players: Array.from(players.values()), user: user});
+    // getting all the players from the common redis store
+    const sharedPlayers = await pubClient.hgetall("players:global");
+    const playerList = Object.values(sharedPlayers).map( player => JSON.parse(player));
+    socket.emit("players", {players: Array.from(playerList.values()), user: user});
 
     // Player joined broadcast
     socket.broadcast.to("global room").emit(
