@@ -139,38 +139,44 @@ io.on("connection", async (socket) => {
     */
     // getting the user object
     const req = socket.request as any;
-    const user = req?.user;
-
-    // getting save spot from the database
-    const response = await db.query(
-        `SELECT *
-             FROM users
-             WHERE user_name = $1`,
+    var user = req?.user;
+    if(!user) {
+        //getting save spot from the database
+        const response = await db.query(
+            `SELECT *
+            FROM users
+            WHERE user_name = $1`,
             [user.user_name]
-        )
+            );
+        user = response.rows[0];
+        if(!user) {
+            console.error("User not found");
+        }
+        
+    }
     console.log(user.display_name+ " joined");
 
-    const db_user = response.rows[0]
-    const oldUser = userSockets.get(db_user.id);
+    // const db_user = response.rows[0]
+    const oldUser = userSockets.get(user.id);
 
-    userSockets.set(db_user.id, socket.id);
+    userSockets.set(user.id, socket.id);
 
     if (oldUser && oldUser !== socket.id) {
         io.sockets.sockets.get(oldUser)?.disconnect(true);
     }
 
-    console.log(db_user.display_name+ " joined");
+    console.log(user.display_name+ " joined");
 
     // defining the player state
     const player = {
         id: socket.id,
-        x: db_user.save_spot.x,
-        y: db_user.save_spot.y,
+        x: user.save_spot.x,
+        y: user.save_spot.y,
         direction: "up",
         action: "idle",
-        username: db_user.user_name,
-        user_id: db_user.id,
-        display_name: db_user.display_name
+        username: user.user_name,
+        user_id: user.id,
+        display_name: user.display_name
     };
 
     
@@ -186,7 +192,7 @@ io.on("connection", async (socket) => {
     });
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
-    socket.emit("spawn player", db_user.save_spot, user);
+    socket.emit("spawn player", user.save_spot, user);
 
     // sending the username to the chat ui
     socket.on("send username", () => {
@@ -260,6 +266,10 @@ io.on("connection", async (socket) => {
         player.y = data.y;
         player.direction = data.direction;
         player.action = data.action;
+        // Changing the user.save_spot so that the people who join later will get the exact position of the player instead of the one in the database
+        user.save_spot.x = data.x;
+        user.save_spot.y = data.y;
+        
         socket.broadcast.to("global room").emit("player_moved", player);
     })
 
@@ -321,15 +331,15 @@ io.on("connection", async (socket) => {
         if (!player) return;
 
         // Only the latest connection for this user may update their save spot
-        if (userSockets.get(db_user.id) === socket.id) {
-            userSockets.delete(db_user.id);
+        if (userSockets.get(user.id) === socket.id) {
+            userSockets.delete(user.id);
 
             try {
                 await db.query(
                     `UPDATE users
                     SET save_spot = $1
                     WHERE id = $2`,
-                    [{ x: player.x, y: player.y }, db_user.id]
+                    [{ x: player.x, y: player.y }, user.id]
                 );
             } catch (err) {
                 console.error("Failed to save player position:", err);
