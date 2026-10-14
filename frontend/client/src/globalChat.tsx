@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ChatUI from "./ChatUI";
 
 interface Message {
@@ -13,15 +13,31 @@ export default function GlobalChat() {
     const [messagesLoaded, setMessagesLoaded] = useState(false);
     const [numberLoaded, setNumberLoaded] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
+    const [loadingOlder, setLoadingOlder] = useState(false);
+    const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
     const clickButton = () => {
-        setIsOpen(!isOpen);
+        setIsOpen(prev => !prev);
     };
 
-    const loadMessages = async (offset: number) => {
+    const handleNewMessage = useCallback((message: Message) => {
+        setMessages(prev =>
+            prev.some(m => m.id === message.id)
+                ? prev
+                : [...prev, message]
+        );
+    }, []);
+
+    const loadMessages = useCallback(async (offset: number) => {
+        if (loadingOlder && offset !== 0) return;
+
+        if (offset !== 0) {
+            setLoadingOlder(true);
+        }
+
         try {
             const response = await fetch(
-                `api/global/messages/${offset}`,
+                `/api/global/messages/${offset}`,
                 {
                     method: "GET",
                     headers: {
@@ -31,64 +47,91 @@ export default function GlobalChat() {
                 }
             );
 
-            if (response.ok) {
-                const data: Message[] = await response.json();
-
-                setMessages((prev) => [...prev, ...data]);
-                setNumberLoaded(offset + data.length);
-                setMessagesLoaded(true);
-            } else {
-                console.log(response.json());
+            if (!response.ok) {
+                throw new Error(`Failed to load messages: ${response.status}`);
             }
-        } catch (err) {
-            console.error(err);
+
+            const data: Message[] = await response.json();
+
+            setMessages(prev => {
+                const existingIds = new Set(prev.map(m => m.id));
+                const newMessages = data.filter(m => !existingIds.has(m.id));
+
+                return offset === 0
+                    ? [...newMessages, ...prev]
+                    : [...newMessages, ...prev];
+            });
+
+            setNumberLoaded(offset + data.length);
+            setHasMoreMessages(data.length === 10);
+            setMessagesLoaded(true);
+        } catch (error) {
+            console.error("Error loading global messages:", error);
+        } finally {
+            setMessagesLoaded(true);
+            setLoadingOlder(false);
         }
-    };
+    }, [loadingOlder]);
 
     useEffect(() => {
         loadMessages(0);
-    }, []);
+    }, [loadMessages]);
 
     return (
-        // Changed `h-screen` to a flex layout with drop shadows and rounded corners
-        <div id="globalChat" className="flex flex-col max-h-inherit bg-slate-900/90 text-white rounded-xl shadow-2xl border border-slate-700 backdrop-blur-md overflow-hidden">
-            
-            {/* Header / Toggle area */}
+        <div
+            id="globalChat"
+            className="flex flex-col max-h-inherit bg-slate-900/90 text-white rounded-xl shadow-2xl border border-slate-700 backdrop-blur-md overflow-hidden"
+        >
             <div
                 id="globalChatIcon"
                 className="relative flex items-center justify-between h-12 px-4 bg-slate-800 border-b border-slate-700"
             >
                 <span className="font-semibold text-sm">Global Chat</span>
+
                 <button
                     type="button"
                     className="p-1 hover:bg-slate-700 rounded-md transition-colors"
                     aria-label="Toggle global chat"
+                    aria-expanded={isOpen}
                     onClick={clickButton}
                 >
                     <img
-                        className="w-6 h-6 object-cover invert" // added invert if your icon is dark
+                        className="w-6 h-6 object-cover invert"
                         src="/global-communication.png"
                         alt="Global chat"
                     />
                 </button>
             </div>
 
-            {/* Chat Body expands when open */}
             {isOpen && (
-                <div id="globalChatUI" className="flex flex-col flex-1 min-h-0 p-3 space-y-2 max-h-[50vh]">
+                <div
+                    id="globalChatUI"
+                    className="flex flex-col flex-1 min-h-0 p-3 space-y-2 max-h-[50vh]"
+                >
                     {messagesLoaded ? (
                         <>
-                            <ChatUI messages={messages} />
-                            <button
-                                type="button"
-                                className="text-xs text-blue-400 hover:text-blue-300 text-left pt-1"
-                                onClick={() => loadMessages(numberLoaded)}
-                            >
-                                ↑ Load older messages
-                            </button>
+                            <ChatUI
+                                messages={messages}
+                                onNewMessage={handleNewMessage}
+                            />
+
+                            {hasMoreMessages && (
+                                <button
+                                    type="button"
+                                    className="text-xs text-blue-400 hover:text-blue-300 text-left pt-1 disabled:opacity-50"
+                                    disabled={loadingOlder}
+                                    onClick={() => loadMessages(numberLoaded)}
+                                >
+                                    {loadingOlder
+                                        ? "Loading..."
+                                        : "↑ Load older messages"}
+                                </button>
+                            )}
                         </>
                     ) : (
-                        <p className="text-sm text-red-400">Failed to load messages.</p>
+                        <p className="text-sm text-slate-400">
+                            Loading messages...
+                        </p>
                     )}
                 </div>
             )}
