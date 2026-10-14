@@ -159,6 +159,7 @@ io.on("connection", async (socket) => {
                     WHERE id = $2`,
                     [{ x: player.x, y: player.y }, user.id]
                 );
+                console.log("Saved the player position in the database")
             } catch (err) {
                 console.error("Failed to save player position:", err);
             }
@@ -731,55 +732,63 @@ CREATE TABLE global_chat_messages (
 // getting the first 10 position from the position pos
 app.get("/api/global/messages/:pos", async (req, res) => {
     const pos = Number(req.params.pos);
-    try{
+
+    if (!Number.isInteger(pos) || pos < 0) {
+        return res.status(400).json({ error: "Invalid position" });
+    }
+
+    try {
         const result = await db.query(
             `SELECT id, username, message, created_at
              FROM global_chat_messages
-             ORDER BY created_at DESC
-             LIMIT 10
-             OFFSET $1`,
-             [pos]
+             ORDER BY created_at DESC, id DESC
+             LIMIT 10 OFFSET $1`,
+            [pos]
         );
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: "No users found"
+
+        return res.json(result.rows);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Database error" });
+    }
+});
+/* --------------------------------------- POST REQUESTS ---------------------------------------------------*/
+app.post(
+    "/api/global/messages/:senderId/:username",
+    async (req, res) => {
+        const senderId = Number(req.params.senderId);
+        const username = req.params.username;
+        const { message } = req.body;
+
+        if (
+            !Number.isInteger(senderId) ||
+            senderId <= 0 ||
+            typeof message !== "string" ||
+            !message.trim()
+        ) {
+            return res.status(400).json({
+                error: "Invalid sender ID or message"
             });
         }
 
-        res.json(result.rows);
+        try {
+            const result = await db.query(
+                `INSERT INTO global_chat_messages
+                    (sender_id, username, message)
+                 VALUES ($1, $2, $3)
+                 RETURNING id, sender_id, username, message, created_at`,
+                [senderId, username, message.trim()]
+            );
+
+            return res.status(201).json(result.rows[0]);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                error: "Database error"
+            });
+        }
     }
-    catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            error: "Database error"
-        });
-    }
-})
-
-
-/* --------------------------------------- POST REQUESTS ---------------------------------------------------*/
-app.post("api/global/messages/:senderId/:username", async (req, res) => {
-    const senderId = Number(req.params.senderId);
-    const username = req.params.username;
-    const message = req.body;
-    try {
-        const result = await db.query(`INSERT INTO chat_messages
-                      (sender_id, username, message)
-                      VALUES ($1, $2, $3) RETURNING id, sender_id, receiver_id, message, created_at`,
-                      [senderId, username, message]);
-        res.status(201).json(result.rows[0]);
-    }
-    catch(error) {
-        console.error(error);
-
-        res.status(500).json({
-            error: "Database error"
-        });
-    }
-})
-
-
+);
 
 // Authentication strategy
 passport.use(new Strategy(async function verify(username, password, cb) {
