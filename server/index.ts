@@ -198,12 +198,12 @@ io.on("connection", async (socket) => {
     // exactly the race that used to break voice chat.
     socket.on("voice_ready", async () => {
         console.log("voice ready fired");
-        const possibleDuplicatePeers = await pubClient.hget("peerSockets:global", player.id);
+        const possibleDuplicatePeers = await pubClient.hget("peerSockets:global", player.user_id);
         if(possibleDuplicatePeers) 
             await pubClient.srem("voiceReadyPeers:global", possibleDuplicatePeers);
         const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
         await pubClient.sadd("voiceReadyPeers:global", socket.id);
-        await pubClient.hset("peerSockets:global", player.id, socket.id);
+        await pubClient.hset("peerSockets:global", player.user_id, socket.id);
         console.log("Added peer to redis");
         socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
         voiceReadyPeers.add(socket.id);
@@ -350,11 +350,11 @@ io.on("connection", async (socket) => {
     
     // Adding the player in the local map(for quick access during movement) and redis shared player map(for sprite creation across instances)
     players.set(socket.id, player);
-    const possibleDuplicate = await pubClient.hget("playerSockets:global", player.id);
+    const possibleDuplicate = await pubClient.hget("playerSockets:global", player.user_id);
     if(possibleDuplicate)
         await pubClient.hdel("players:global", possibleDuplicate);
     await pubClient.hset("players:global", socket.id, JSON.stringify(player));
-    await pubClient.hset("playerSockets:global", player.id, socket.id);
+    await pubClient.hset("playerSockets:global", player.user_id, socket.id);
     socket.join("global room");
 
     console.log({
