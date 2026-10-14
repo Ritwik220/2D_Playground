@@ -140,7 +140,9 @@ io.on("connection", async (socket) => {
         try {
             await Promise.all([
                 pubClient.hdel("players:global", socket.id),
-                pubClient.srem("voiceReadyPeers:global", socket.id)
+                (await pubClient.srem("voiceReadyPeers:global", socket.id)),
+                pubClient.hdel("playerSockets:global", player.id),
+                pubClient.hdel("peerSockets:global", player.id)
             ]);
         } catch (err) {
             console.error("Failed to clean up disconnected player:", err);
@@ -196,9 +198,13 @@ io.on("connection", async (socket) => {
     // exactly the race that used to break voice chat.
     socket.on("voice_ready", async () => {
         console.log("voice ready fired");
-        await pubClient.sadd("voiceReadyPeers:global", socket.id);
-        console.log("Added peer to redis");
+        const possibleDuplicatePeers = await pubClient.hget("peerSockets:global", player.id);
+        if(possibleDuplicatePeers) 
+            await pubClient.srem("voiceReadyPeers:global", possibleDuplicatePeers);
         const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
+        await pubClient.sadd("voiceReadyPeers:global", socket.id);
+        await pubClient.hset("peerSockets:global", player.id, socket.id);
+        console.log("Added peer to redis");
         socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
         voiceReadyPeers.add(socket.id);
     });
@@ -344,7 +350,11 @@ io.on("connection", async (socket) => {
     
     // Adding the player in the local map(for quick access during movement) and redis shared player map(for sprite creation across instances)
     players.set(socket.id, player);
+    const possibleDuplicate = await pubClient.hget("playerSockets:global", player.id);
+    if(possibleDuplicate)
+        await pubClient.hdel("players:global", possibleDuplicate);
     await pubClient.hset("players:global", socket.id, JSON.stringify(player));
+    await pubClient.hset("playerSockets:global", player.id, socket.id);
     socket.join("global room");
 
     console.log({
@@ -382,7 +392,7 @@ io.on("connection", async (socket) => {
         player.action = data.action;
         // Storing the player in redis to update the position so that new players can get accurate posiotion even if they join later
         await pubClient.hset("players:global", socket.id, JSON.stringify(player));
-        // Updationg the local cache and saving it
+        // Updating the local cache and saving it
         req.user.save_spot = {
             x: data.x,
             y: data.y
