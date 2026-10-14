@@ -182,6 +182,12 @@ io.on("connection", async (socket) => {
         user_id: user.id,
         display_name: user.display_name
     };
+    if(await pubClient.hexists("players:global", socket.id)) {
+        var cached_user = await pubClient.hget("players:global", socket.id);
+        const stored_user: any = JSON.parse(cached_user!);
+        player.x = Number(stored_user.x);
+        player.y = Number(stored_user.y);
+    }
 
     
     // Adding the player in the local map(for quick access during movement) and redis shared player map(for sprite creation across instances)
