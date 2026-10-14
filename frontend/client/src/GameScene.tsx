@@ -376,7 +376,8 @@ export default class GameScene extends Phaser.Scene {
 
             for(const peer_id of peerIds){
                 console.log("Creating offer for ", peer_id);
-                await this.createOffer(peer_id);
+                if(this.socket.id! > peer_id)
+                    await this.createOffer(peer_id);
             }
 
         });
