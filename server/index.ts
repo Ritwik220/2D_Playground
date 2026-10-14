@@ -309,39 +309,57 @@ io.on("connection", async (socket) => {
     */
 
     // getting message
-    socket.on("chat message sent", async (message:string, username:string) => {
-        const sender_req = await db.query(
-            `SELECT id
-             FROM users
-             WHERE id = $1`,
-            [username]
-            );
-        if(sender_req.rows.length === 0 ) {
-            console.log("No user with the specified username found. Username: ", username);
-            return;
-        }
-        const senderId = sender_req.rows[0].id;
-       try {
-            const insert = await db.query(
-                `INSERT INTO global_chat_messages (username, sender_id, message)
-                VALUES ($1, $2, $3)
-                RETURNING id, created_at`,
-                [username, senderId, message]
-            );
-            if(insert.rows.length === 0) {
-                console.log(`data base insertion of the global message ${message} by ${username} failed`);
-                return;
-            }
-            const created_at = insert.rows[0].created_at;
-            const id = insert.rows[0].id;
-            io.emit("chat recieved", {message: message, username: username, created_at: created_at, id: id});
-       } catch(err)  {
-            console.log(`data base insertion of the global message ${message} by ${username} failed`);
-            console.error(err);
-       }
+    socket.on(
+        "chat message sent",
+        async ({ message, username }: { message: string; username: string }) => {
+            try {
+                if (
+                    typeof message !== "string" ||
+                    !message.trim() ||
+                    message.length > 500 ||
+                    typeof username !== "string"
+                ) {
+                    return;
+                }
 
-        
-    })
+                const sender_req = await db.query(
+                    `SELECT id
+                    FROM users
+                    WHERE user_name = $1`,
+                    [username]
+                );
+
+                if (sender_req.rows.length === 0) {
+                    console.log("No user found:", username);
+                    return;
+                }
+
+                const senderId = sender_req.rows[0].id;
+
+                const insert = await db.query(
+                    `INSERT INTO global_chat_messages
+                        (username, sender_id, message)
+                    VALUES ($1, $2, $3)
+                    RETURNING id, created_at`,
+                    [username, senderId, message.trim()]
+                );
+
+                if (insert.rows.length === 0) {
+                    console.log("Global chat message insertion failed");
+                    return;
+                }
+
+                io.emit("chat recieved", {
+                    message: message.trim(),
+                    username,
+                    created_at: insert.rows[0].created_at,
+                    id: insert.rows[0].id
+                });
+            } catch (err) {
+                console.error("Global chat message insertion failed:", err);
+            }
+        }
+    );
 
     // getting all the players from the common redis store
     const sharedPlayers = await pubClient.hgetall("players:global");
