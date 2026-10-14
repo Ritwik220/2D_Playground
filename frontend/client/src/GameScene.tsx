@@ -8,22 +8,22 @@ const ICE_SERVERS: RTCIceServer[] = [
     {
         urls: "turn:global.relay.metered.ca:80",
         username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+        credential: import.meta.env.VITE_TURN_PASSWORD,
     },
     {
         urls: "turn:global.relay.metered.ca:80?transport=tcp",
         username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+        credential: import.meta.env.VITE_TURN_PASSWORD,
     },
     {
         urls: "turn:global.relay.metered.ca:443",
         username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+        credential: import.meta.env.VITE_TURN_PASSWORD,
     },
     {
         urls: "turns:global.relay.metered.ca:443?transport=tcp",
         username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+        credential: import.meta.env.VITE_TURN_PASSWORD,
     },
 ];
 export default class GameScene extends Phaser.Scene {
