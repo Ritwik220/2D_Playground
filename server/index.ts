@@ -177,6 +177,50 @@ io.on("connection", async (socket) => {
         });
     });
 
+
+    // disconnect
+    socket.on("disconnect", async () => {
+        const player = players.get(socket.id);
+
+        // Always clean up local and shared connection state
+        players.delete(socket.id);
+        voiceReadyPeers.delete(socket.id);
+
+        try {
+            await Promise.all([
+                pubClient.hdel("players:global", socket.id),
+                pubClient.srem("voiceReadyPeers:global", socket.id)
+            ]);
+        } catch (err) {
+            console.error("Failed to clean up disconnected player:", err);
+        }
+
+        if (!player) return;
+
+        // Only the latest connection for this user may update their save spot
+        if (userSockets.get(user.id) === socket.id) {
+            userSockets.delete(user.id);
+
+            try {
+                await db.query(
+                    `UPDATE users
+                    SET save_spot = $1
+                    WHERE id = $2`,
+                    [{ x: player.x, y: player.y }, user.id]
+                );
+            } catch (err) {
+                console.error("Failed to save player position:", err);
+            }
+        }
+
+        socket.broadcast.to("global room").emit(
+            "player_left",
+            {user_id: player.user_id, socket_id: socket.id}
+        );
+
+        console.log("Player disconnected:", player.user_id);
+    });
+
     // if(!user) {
     //     try{
     //         console.log("User not found on cache getting him/her from the database");
@@ -336,48 +380,7 @@ io.on("connection", async (socket) => {
         console.error("socket connection error: ", err)
     })
 
-    // Disconnect
-    socket.on("disconnect", async () => {
-        const player = players.get(socket.id);
-
-        // Always clean up local and shared connection state
-        players.delete(socket.id);
-        voiceReadyPeers.delete(socket.id);
-
-        try {
-            await Promise.all([
-                pubClient.hdel("players:global", socket.id),
-                pubClient.srem("voiceReadyPeers:global", socket.id)
-            ]);
-        } catch (err) {
-            console.error("Failed to clean up disconnected player:", err);
-        }
-
-        if (!player) return;
-
-        // Only the latest connection for this user may update their save spot
-        if (userSockets.get(user.id) === socket.id) {
-            userSockets.delete(user.id);
-
-            try {
-                await db.query(
-                    `UPDATE users
-                    SET save_spot = $1
-                    WHERE id = $2`,
-                    [{ x: player.x, y: player.y }, user.id]
-                );
-            } catch (err) {
-                console.error("Failed to save player position:", err);
-            }
-    }
-
-    socket.broadcast.to("global room").emit(
-        "player_left",
-        {user_id: player.user_id, socket_id: socket.id}
-    );
-
-    console.log("Player disconnected:", player.user_id);
-});
+    
 
 })
 
