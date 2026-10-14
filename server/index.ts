@@ -141,6 +141,7 @@ io.on("connection", async (socket) => {
     const req = socket.request as any;
     var user = req?.user;
     if(!user) {
+        console.log("User not found on cache getting him/her from the database");
         //getting save spot from the database
         const response = await db.query(
             `SELECT *
@@ -257,7 +258,7 @@ io.on("connection", async (socket) => {
     );
 
     // movement
-    socket.on("player_move", (data) => {
+    socket.on("player_move", async (data) => {
         const player = players.get(socket.id);
 
         if (!player) return;
@@ -266,10 +267,9 @@ io.on("connection", async (socket) => {
         player.y = data.y;
         player.direction = data.direction;
         player.action = data.action;
-        // Changing the user.save_spot so that the people who join later will get the exact position of the player instead of the one in the database
-        user.save_spot.x = data.x;
-        user.save_spot.y = data.y;
-        
+        // Storing the player in redis to update the position so that new players can get accurate posiotion even if they join later
+        await pubClient.hset("players:global", socket.id, JSON.stringify(player));
+
         socket.broadcast.to("global room").emit("player_moved", player);
     })
 
