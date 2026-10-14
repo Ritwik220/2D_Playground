@@ -375,9 +375,8 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on("voice_ready_peers", async (peerIds:string[]) => {
 
             for(const peer_id of peerIds){
-
-            await this.createOffer(peer_id);
-
+                console.log("Creating offer for ", peer_id);
+                await this.createOffer(peer_id);
             }
 
         });

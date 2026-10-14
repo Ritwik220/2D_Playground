@@ -273,7 +273,7 @@ io.on("connection", async (socket) => {
         const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
         socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
         voiceReadyPeers.add(socket.id);
-        pubClient.sadd("voiceReadyPeers:global", socket.id);
+        await pubClient.sadd("voiceReadyPeers:global", socket.id);
     });
 
     socket.on("voice_offer", ({ target, offer }) => {
