@@ -301,7 +301,9 @@ io.on("connection", async (socket) => {
     // proactively tell existing peers about the new one, because that's
     // exactly the race that used to break voice chat.
     socket.on("voice_ready", async () => {
+        console.log("voice ready fired");
         await pubClient.sadd("voiceReadyPeers:global", socket.id);
+        console.log("Added peer to redis");
         const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
         socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
         voiceReadyPeers.add(socket.id);
