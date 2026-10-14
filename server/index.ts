@@ -357,13 +357,6 @@ io.on("connection", async (socket) => {
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
     socket.emit("spawn player", user.save_spot, user);
-
-    // sending the username to the chat ui
-    socket.on("send username", () => {
-        socket.emit("chat ready", user.user_name);
-    })
-
-
     
 
     // getting all the players from the common redis store
