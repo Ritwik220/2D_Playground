@@ -21,11 +21,17 @@ export default function GlobalChat() {
     };
 
     const handleNewMessage = useCallback((message: Message) => {
-        setMessages(prev =>
-            prev.some(m => m.id === message.id)
+        setMessages(prev => {
+            const updated = prev.some(m => m.id === message.id)
                 ? prev
-                : [...prev, message]
-        );
+                : [...prev, message];
+
+            return updated.sort(
+                (a, b) =>
+                    new Date(a.created_at).getTime() -
+                    new Date(b.created_at).getTime()
+            );
+        });
     }, []);
 
     const loadMessages = useCallback(async (offset: number) => {
@@ -51,7 +57,7 @@ export default function GlobalChat() {
                 throw new Error(`Failed to load messages: ${response.status}`);
             }
 
-            const data: Message[] = await response.json();
+            const data: Message[] = (await response.json()).reverse();
 
             setMessages(prev => {
                 const existingIds = new Set(prev.map(m => m.id));
