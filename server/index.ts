@@ -249,6 +249,11 @@ io.on("connection", async (socket) => {
         players.delete(socket.id);
         voiceReadyPeers.delete(socket.id);
 
+        socket.broadcast.to("global room").emit(
+            "player_left",
+            {user_id: player.user_id, socket_id: socket.id}
+        );
+
         try {
             await Promise.all([
                 pubClient.hdel("players:global", socket.id),
@@ -276,10 +281,7 @@ io.on("connection", async (socket) => {
             }
         }
 
-        socket.broadcast.to("global room").emit(
-            "player_left",
-            {user_id: player.user_id, socket_id: socket.id}
-        );
+        
 
         console.log("Player disconnected:", player.user_id);
     });
