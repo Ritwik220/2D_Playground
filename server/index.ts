@@ -369,7 +369,7 @@ io.on("connection", async (socket) => {
 
     socket.broadcast.to("global room").emit(
         "player_left",
-        player.user_id
+        {user_id: player.user_id, socket_id: socket.id}
     );
 
     console.log("Player disconnected:", player.user_id);

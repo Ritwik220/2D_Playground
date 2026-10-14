@@ -302,18 +302,18 @@ export default class GameScene extends Phaser.Scene {
 
         });
         // Remove the users that went offline
-        this.socket.on("player_left", (id) => {
+        this.socket.on("player_left", (user_id, socket_id) => {
 
-            const sprite = this.otherPlayers.get(id);
+            const sprite = this.otherPlayers.get(user_id);
 
             if (!sprite) return;
 
             sprite.destroy();
 
-            this.otherPlayers.delete(id);
-            this.cleanupPeer(id);
-            this.otherPlayerNameTags.get(id)?.destroy();
-            this.otherPlayerNameTags.delete(id);
+            this.otherPlayers.delete(user_id);
+            this.cleanupPeer(socket_id);
+            this.otherPlayerNameTags.get(user_id)?.destroy();
+            this.otherPlayerNameTags.delete(user_id);
 
         });
 
@@ -376,8 +376,7 @@ export default class GameScene extends Phaser.Scene {
 
             for(const peer_id of peerIds){
                 console.log("Creating offer for ", peer_id);
-                if(this.socket.id! > peer_id)
-                    await this.createOffer(peer_id);
+                await this.createOffer(peer_id);
             }
 
         });
