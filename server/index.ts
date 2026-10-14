@@ -140,6 +140,43 @@ io.on("connection", async (socket) => {
     // getting the user object
     const req = socket.request as any;
     var user = req?.user;
+
+        // Voice readiness handshake.
+    // When a client's mic is ready, it tells us; we hand it the list of
+    // peers who are already ready (guaranteed to have their own localStream
+    // set), and the new client creates offers to those peers. We do NOT
+    // proactively tell existing peers about the new one, because that's
+    // exactly the race that used to break voice chat.
+    socket.on("voice_ready", async () => {
+        console.log("voice ready fired");
+        await pubClient.sadd("voiceReadyPeers:global", socket.id);
+        console.log("Added peer to redis");
+        const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
+        socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
+        voiceReadyPeers.add(socket.id);
+    });
+
+    socket.on("voice_offer", ({ target, offer }) => {
+        io.to(target).emit("voice_offer", {
+            sender: socket.id,
+            offer
+        });
+    });
+
+    socket.on("voice_answer", ({ target, answer }) => {
+        io.to(target).emit("voice_answer", {
+            sender: socket.id,
+            answer
+        });
+    });
+
+    socket.on("voice_ice_candidate", ({ target, candidate }) => {
+        io.to(target).emit("voice_ice_candidate", {
+            sender: socket.id,
+            candidate
+        });
+    });
+
     // if(!user) {
     //     try{
     //         console.log("User not found on cache getting him/her from the database");
@@ -294,41 +331,6 @@ io.on("connection", async (socket) => {
         socket.broadcast.to("global room").emit("player_moved", player);
     })
 
-    // Voice readiness handshake.
-    // When a client's mic is ready, it tells us; we hand it the list of
-    // peers who are already ready (guaranteed to have their own localStream
-    // set), and the new client creates offers to those peers. We do NOT
-    // proactively tell existing peers about the new one, because that's
-    // exactly the race that used to break voice chat.
-    socket.on("voice_ready", async () => {
-        console.log("voice ready fired");
-        await pubClient.sadd("voiceReadyPeers:global", socket.id);
-        console.log("Added peer to redis");
-        const sharedVoiceReadyPeers = await pubClient.smembers("voiceReadyPeers:global");
-        socket.emit("voice_ready_peers", Array.from(sharedVoiceReadyPeers));
-        voiceReadyPeers.add(socket.id);
-    });
-
-    socket.on("voice_offer", ({ target, offer }) => {
-        io.to(target).emit("voice_offer", {
-            sender: socket.id,
-            offer
-        });
-    });
-
-    socket.on("voice_answer", ({ target, answer }) => {
-        io.to(target).emit("voice_answer", {
-            sender: socket.id,
-            answer
-        });
-    });
-
-    socket.on("voice_ice_candidate", ({ target, candidate }) => {
-        io.to(target).emit("voice_ice_candidate", {
-            sender: socket.id,
-            candidate
-        });
-    });
 
     socket.on("connect_error", (err) => {
         console.error("socket connection error: ", err)
