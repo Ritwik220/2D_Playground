@@ -123,6 +123,52 @@ const port = process.env.PORT || 3000;
 
 
 io.on("connection", async (socket) => {
+    let player: any;
+         // disconnect
+    socket.on("disconnect", async () => {
+        const player = players.get(socket.id);
+
+        // Always clean up local and shared connection state
+        players.delete(socket.id);
+        voiceReadyPeers.delete(socket.id);
+
+        socket.broadcast.to("global room").emit(
+            "player_left",
+            {user_id: player.user_id, socket_id: socket.id}
+        );
+
+        try {
+            await Promise.all([
+                pubClient.hdel("players:global", socket.id),
+                pubClient.srem("voiceReadyPeers:global", socket.id)
+            ]);
+        } catch (err) {
+            console.error("Failed to clean up disconnected player:", err);
+        }
+
+        if (!player) return;
+
+        // Only the latest connection for this user may update their save spot
+        if (userSockets.get(user.id) === socket.id) {
+            userSockets.delete(user.id);
+
+            try {
+                await db.query(
+                    `UPDATE users
+                    SET save_spot = $1
+                    WHERE id = $2`,
+                    [{ x: player.x, y: player.y }, user.id]
+                );
+            } catch (err) {
+                console.error("Failed to save player position:", err);
+            }
+        }
+
+        
+
+        console.log("Player disconnected:", player.user_id);
+    });
+
     // setup
     console.log("Player connected", socket.id);
     // socket.join("global room");
@@ -211,7 +257,7 @@ io.on("connection", async (socket) => {
     console.log(user.display_name+ " joined");
 
     // defining the player state
-    const player = {
+    player = {
         id: socket.id,
         x: user.save_spot.x,
         y: user.save_spot.y,
@@ -240,51 +286,6 @@ io.on("connection", async (socket) => {
         rooms: [...socket.rooms]
     });
 
-
-     // disconnect
-    socket.on("disconnect", async () => {
-        const player = players.get(socket.id);
-
-        // Always clean up local and shared connection state
-        players.delete(socket.id);
-        voiceReadyPeers.delete(socket.id);
-
-        socket.broadcast.to("global room").emit(
-            "player_left",
-            {user_id: player.user_id, socket_id: socket.id}
-        );
-
-        try {
-            await Promise.all([
-                pubClient.hdel("players:global", socket.id),
-                pubClient.srem("voiceReadyPeers:global", socket.id)
-            ]);
-        } catch (err) {
-            console.error("Failed to clean up disconnected player:", err);
-        }
-
-        if (!player) return;
-
-        // Only the latest connection for this user may update their save spot
-        if (userSockets.get(user.id) === socket.id) {
-            userSockets.delete(user.id);
-
-            try {
-                await db.query(
-                    `UPDATE users
-                    SET save_spot = $1
-                    WHERE id = $2`,
-                    [{ x: player.x, y: player.y }, user.id]
-                );
-            } catch (err) {
-                console.error("Failed to save player position:", err);
-            }
-        }
-
-        
-
-        console.log("Player disconnected:", player.user_id);
-    });
 
 
     // sending the spawn position so that the sprite in the frontend can be created accordingly
