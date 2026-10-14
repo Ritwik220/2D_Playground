@@ -33,18 +33,8 @@ export default function ChatUI({
             setUsername(name);
         };
 
-        const handleChatReceived = (
-            message: string,
-            name: string,
-            created_at: string,
-            id: number
-        ) => {
-            onNewMessage({
-                id,
-                username: name,
-                message,
-                created_at
-            });
+        const handleChatReceived = (data: Message) => {
+            onNewMessage(data);
         };
 
         socket.on("connect", requestUsername);
