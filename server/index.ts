@@ -325,7 +325,7 @@ io.on("connection", async (socket) => {
             const insert = await db.query(
                 `INSERT INTO global_chat_messages (username, sender_id, message)
                 VALUES ($1, $2, $3)
-                RETURNING id, user_name, display_name, save_spot`,
+                RETURNING id, created_at`,
                 [username, senderId, message]
             );
             if(insert.rows.length === 0) {
