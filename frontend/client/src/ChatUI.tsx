@@ -99,6 +99,7 @@ export default function ChatUI({
                     className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
                     value={input}
                     onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.stopPropagation()}
                     placeholder="Type a message..."
                     maxLength={500}
                 />
