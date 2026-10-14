@@ -302,7 +302,7 @@ export default class GameScene extends Phaser.Scene {
 
         });
         // Remove the users that went offline
-        this.socket.on("player_left", (user_id, socket_id) => {
+        this.socket.on("player_left", ({user_id, socket_id}) => {
 
             const sprite = this.otherPlayers.get(user_id);
 
