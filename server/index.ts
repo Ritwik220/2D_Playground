@@ -141,17 +141,20 @@ io.on("connection", async (socket) => {
     const req = socket.request as any;
     var user = req?.user;
     if(!user) {
-        console.log("User not found on cache getting him/her from the database");
-        //getting save spot from the database
-        const response = await db.query(
-            `SELECT *
-            FROM users
-            WHERE user_name = $1`,
-            [user.user_name]
-            );
-        user = response.rows[0];
-        if(!user) {
-            console.error("User not found");
+        try{
+            console.log("User not found on cache getting him/her from the database");
+            //getting save spot from the database
+            const response = await db.query(
+                `SELECT *
+                FROM users
+                WHERE user_name = $1`,
+                [user.user_name]
+                );
+            user = response.rows[0];
+            req.user = user;
+        }
+        catch(err) {
+            console.error("User not found: ", err);
         }
         
     }
@@ -269,6 +272,8 @@ io.on("connection", async (socket) => {
         player.action = data.action;
         // Storing the player in redis to update the position so that new players can get accurate posiotion even if they join later
         await pubClient.hset("players:global", socket.id, JSON.stringify(player));
+        req.user.save_spot.x = data.x;
+        req.user.save_spot.y = data.y;
 
         socket.broadcast.to("global room").emit("player_moved", player);
     })
