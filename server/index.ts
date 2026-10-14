@@ -223,6 +223,72 @@ io.on("connection", async (socket) => {
             candidate
         });
     });
+    /*
+    CREATE TABLE global_chat_messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER NOT NULL REFERENCES users(id),
+    username TEXT unique NOT NULL REFERENCES user(user_name),
+    message TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    */
+
+    // getting message
+    socket.on(
+        "chat message sent",
+        async ({ message, username }: { message: string; username: string }) => {
+            try {
+                if (
+                    typeof message !== "string" ||
+                    !message.trim() ||
+                    message.length > 500 ||
+                    typeof username !== "string"
+                ) {
+                    return;
+                }
+
+                const sender_req = await db.query(
+                    `SELECT id
+                    FROM users
+                    WHERE user_name = $1`,
+                    [username]
+                );
+
+                if (sender_req.rows.length === 0) {
+                    console.log("No user found:", username);
+                    return;
+                }
+
+                const senderId = sender_req.rows[0].id;
+
+                const insert = await db.query(
+                    `INSERT INTO global_chat_messages
+                        (username, sender_id, message)
+                    VALUES ($1, $2, $3)
+                    RETURNING id, created_at`,
+                    [username, senderId, message.trim()]
+                );
+
+                if (insert.rows.length === 0) {
+                    console.log("Global chat message insertion failed");
+                    return;
+                }
+
+                io.emit("chat recieved", {
+                    message: message.trim(),
+                    username,
+                    created_at: insert.rows[0].created_at,
+                    id: insert.rows[0].id
+                });
+            } catch (err) {
+                console.error("Global chat message insertion failed:", err);
+            }
+        }
+    );
+    // sending the username to the chat ui
+    socket.on("send username", () => {
+        socket.emit("chat ready", user.user_name);
+    })
 
 
    
@@ -298,68 +364,7 @@ io.on("connection", async (socket) => {
     })
 
 
-    /*
-    CREATE TABLE global_chat_messages (
-    id SERIAL PRIMARY KEY,
-    sender_id INTEGER NOT NULL REFERENCES users(id),
-    username TEXT unique NOT NULL REFERENCES user(user_name),
-    message TEXT NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-    );
-    */
-
-    // getting message
-    socket.on(
-        "chat message sent",
-        async ({ message, username }: { message: string; username: string }) => {
-            try {
-                if (
-                    typeof message !== "string" ||
-                    !message.trim() ||
-                    message.length > 500 ||
-                    typeof username !== "string"
-                ) {
-                    return;
-                }
-
-                const sender_req = await db.query(
-                    `SELECT id
-                    FROM users
-                    WHERE user_name = $1`,
-                    [username]
-                );
-
-                if (sender_req.rows.length === 0) {
-                    console.log("No user found:", username);
-                    return;
-                }
-
-                const senderId = sender_req.rows[0].id;
-
-                const insert = await db.query(
-                    `INSERT INTO global_chat_messages
-                        (username, sender_id, message)
-                    VALUES ($1, $2, $3)
-                    RETURNING id, created_at`,
-                    [username, senderId, message.trim()]
-                );
-
-                if (insert.rows.length === 0) {
-                    console.log("Global chat message insertion failed");
-                    return;
-                }
-
-                io.emit("chat recieved", {
-                    message: message.trim(),
-                    username,
-                    created_at: insert.rows[0].created_at,
-                    id: insert.rows[0].id
-                });
-            } catch (err) {
-                console.error("Global chat message insertion failed:", err);
-            }
-        }
-    );
+    
 
     // getting all the players from the common redis store
     const sharedPlayers = await pubClient.hgetall("players:global");
