@@ -4,14 +4,28 @@ import { Socket, io } from "socket.io-client";
 import { VirtualJoystick } from "phaser-virtual-joystick";
 
 const ICE_SERVERS: RTCIceServer[] = [
-    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun.relay.metered.ca:80" },
     {
-        urls: "turn:standard.relay.metered.ca:80",
+        urls: "turn:global.relay.metered.ca:80",
         username: import.meta.env.VITE_TURN_USERNAME,
-        credential: import.meta.env.VITE_TURN_PASSWORD
-    }
+        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+    },
+    {
+        urls: "turn:global.relay.metered.ca:80?transport=tcp",
+        username: import.meta.env.VITE_TURN_USERNAME,
+        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+    },
+    {
+        urls: "turn:global.relay.metered.ca:443",
+        username: import.meta.env.VITE_TURN_USERNAME,
+        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+    },
+    {
+        urls: "turns:global.relay.metered.ca:443?transport=tcp",
+        username: import.meta.env.VITE_TURN_USERNAME,
+        credential: import.meta.env.VITE_TURN_CREDENTIAL,
+    },
 ];
-
 export default class GameScene extends Phaser.Scene {
     // Virtual joystick axes
     private joystickX = 0;
