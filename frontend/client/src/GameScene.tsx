@@ -249,9 +249,10 @@ export default class GameScene extends Phaser.Scene {
 
         map.createLayer("Tile Layer 2", tileset, 0, 0);
         map.createLayer("Tile Layer 1", tileset, 0, 0);
-        this.camera.setZoom(3);
+        
         // getting the main camera
         this.camera = this.cameras.main;
+        this.camera.setZoom(3);
         // Adding the joystick
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
