@@ -42,7 +42,7 @@ const app: Express = express();
 const httpServer = createServer(app);
 
 // const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
-const frontendUrl = "https://2-d-playground.vercel.app/";
+const frontendUrl = "https://2-d-playground.vercel.app";
 const loginUrl = frontendUrl + "/login";
 const registerUrl = frontendUrl + "/register";
 // for cors
@@ -68,7 +68,7 @@ const sessionMiddleware = session({
   secret: process.env.SECRET_KEY!,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, secure: process.env.DEPLOY == "true", sameSite: "lax", maxAge: 1000 * 60 * 60 * 24 * 7 },
+  cookie: { httpOnly: true, secure: process.env.DEPLOY == "true", sameSite: "none", maxAge: 1000 * 60 * 60 * 24 * 7 },
 });
 
 //session
