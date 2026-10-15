@@ -145,7 +145,7 @@ io.on("connection", async (socket) => {
         try {
             await Promise.all([
                 pubClient.hdel("players:global", socket.id),
-                (await pubClient.srem("voiceReadyPeers:global", socket.id)),
+                pubClient.srem("voiceReadyPeers:global", socket.id),
                 pubClient.hdel("playerSockets:global", player.id),
                 pubClient.hdel("peerSockets:global", player.id)
             ]);
