@@ -248,12 +248,12 @@ export default class GameScene extends Phaser.Scene {
             this.joystickY = 0;
         });
         this.socket = io(
-            import.meta.env.VITE_BACKEND_URL,
+            "https://twod-playground.onrender.com",
             {
                 withCredentials: true,
                 transports: ["websocket"],
             }
-            );
+        );
         this.socket.on("connect", () => {
             console.log("Player Connected:", this.socket.id);
         });
