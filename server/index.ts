@@ -190,6 +190,11 @@ io.on("connection", async (socket) => {
     // getting the user object
     const req = socket.request as any;
     var user = req?.user;
+    if (!user) {
+        console.log("Rejecting unauthenticated socket:", socket.id);
+        socket.disconnect(true);
+        return;
+    }
 
         // Voice readiness handshake.
     // When a client's mic is ready, it tells us; we hand it the list of
