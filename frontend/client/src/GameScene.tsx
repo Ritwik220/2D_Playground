@@ -28,7 +28,7 @@ const ICE_SERVERS: RTCIceServer[] = [
     },
 ];
 export default class GameScene extends Phaser.Scene {
-    private footstepSound: any;
+    // private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
     private joystickX = 0;
@@ -238,7 +238,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        this.footstepSound = this.sound.add('footstep');
+        // this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
         // Replace "YOUR_TILESET_NAME" with the tileset name shown in Tiled.
