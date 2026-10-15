@@ -8,6 +8,10 @@ interface Message {
     created_at: string;
 }
 
+
+const url = import.meta.env.VITE_BACKEND_URL  || "http://localhost:3000";
+
+
 export default function GlobalChat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [messagesLoaded, setMessagesLoaded] = useState(false);
@@ -43,7 +47,7 @@ export default function GlobalChat() {
 
         try {
             const response = await fetch(
-                `/api/global/messages/${offset}`,
+                url + `api/global/messages/${offset}`,
                 {
                     method: "GET",
                     headers: {
