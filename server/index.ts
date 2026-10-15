@@ -41,8 +41,8 @@ const userSockets = new Map<Number, string>();
 const app: Express = express();
 const httpServer = createServer(app);
 
-// const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
-const frontendUrl = "https://2-d-playground.vercel.app";
+const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
+// const frontendUrl = "https://2-d-playground.vercel.app";
 const loginUrl = frontendUrl + "/login";
 const registerUrl = frontendUrl + "/register";
 // for cors
