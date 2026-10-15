@@ -42,13 +42,12 @@ const app: Express = express();
 const httpServer = createServer(app);
 
 // const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
-// const loginUrl = frontendUrl + "/login";
-// const registerUrl = frontendUrl + "/register";
 const frontendUrl = "https://2-d-playground.vercel.app/";
-
+const loginUrl = frontendUrl + "/login";
+const registerUrl = frontendUrl + "/register";
 // for cors
 app.use(cors({
-  origin: [frontendUrl], 
+  origin: [frontendUrl, loginUrl, registerUrl], 
   methods: ["GET", "POST", "PATCH", "OPTIONS"],
   credentials: true
 }));
