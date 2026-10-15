@@ -127,6 +127,10 @@ io.on("connection", async (socket) => {
     let player: any;
          // disconnect
     socket.on("disconnect", async () => {
+        if (!user) {
+            console.log("Disconnected socket had no player");
+            return;
+        }
         const player = players.get(socket.id);
 
         // Always clean up local and shared connection state
@@ -150,6 +154,7 @@ io.on("connection", async (socket) => {
         }
 
         if (!player) return;
+        
 
         // Only the latest connection for this user may update their save spot
         if (userSockets.get(user.id) === socket.id) {
