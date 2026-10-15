@@ -47,7 +47,7 @@ const loginUrl = frontendUrl + "/login";
 const registerUrl = frontendUrl + "/register";
 // for cors
 app.use(cors({
-  origin: [frontendUrl, loginUrl, registerUrl], 
+  origin: [frontendUrl, 'https://2-d-playground.vercel.app', 'https://2-d-playground-fp22.vercel.app'], 
   methods: ["GET", "POST", "PATCH", "OPTIONS"],
   credentials: true
 }));
