@@ -535,7 +535,7 @@ export default class GameScene extends Phaser.Scene {
             moveX !== 0 ||
             moveY !== 0
         ) {
-            this.sound.play('footstep', { volume: 1.5 });
+            this.sound.play('footstep', { volume: 1.0 });
             this.socket.emit("player_move", {
             x: this.player.x,
             y: this.player.y,
@@ -559,7 +559,7 @@ export default class GameScene extends Phaser.Scene {
             
             if (targetX === undefined || targetY === undefined) return;
             if(sprite.x != targetX || sprite.y != targetY)
-                this.sound.play('footstep', { volume: 1.5 });
+                this.sound.play('footstep', { volume: 1.0 });
 
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
