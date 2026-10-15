@@ -249,6 +249,9 @@ export default class GameScene extends Phaser.Scene {
             this.joystickY = 0;
         });
         this.socket = socket;
+        if (!this.socket.connected) {
+            this.socket.connect();
+        }
         this.socket.on("connect", () => {
             console.log("Player Connected:", this.socket.id);
         });
