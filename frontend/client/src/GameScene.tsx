@@ -247,12 +247,13 @@ export default class GameScene extends Phaser.Scene {
             throw new Error("Could not load map tileset");
         }
 
-        map.createLayer("Tile Layer 2", tileset, 0, 0);
-        map.createLayer("Tile Layer 1", tileset, 0, 0);
+        const ground = map.createLayer("Tile Layer 2", tileset, 0, 0);
+        const objects = map.createLayer("Tile Layer 1", tileset, 0, 0);
+        ground.setScale(4);
+        objects.setScale(4);
         
         // getting the main camera
         this.camera = this.cameras.main;
-        this.camera.setZoom(3);
         // Adding the joystick
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
