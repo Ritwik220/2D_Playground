@@ -317,7 +317,7 @@ io.on("connection", async (socket) => {
     //     }
         
     // }
-    console.log(user.display_name+ " joined");
+    // console.log(user.display_name+ " joined");
 
     // const db_user = response.rows[0]
     const oldUser = userSockets.get(user.id);
