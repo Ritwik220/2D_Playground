@@ -28,6 +28,7 @@ const ICE_SERVERS: RTCIceServer[] = [
     },
 ];
 export default class GameScene extends Phaser.Scene {
+    private lastFootstep = 0;
     // private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
@@ -535,7 +536,11 @@ export default class GameScene extends Phaser.Scene {
             moveX !== 0 ||
             moveY !== 0
         ) {
-            this.sound.play('footstep', { volume: 0.5 });
+            const now = this.time.now;
+            if(now - this.lastFootstep > 300) {
+                this.sound.play('footstep', { volume: 0.5 });
+                this.lastFootstep = now;
+            }
             this.socket.emit("player_move", {
             x: this.player.x,
             y: this.player.y,
