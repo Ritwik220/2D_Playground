@@ -28,6 +28,7 @@ const ICE_SERVERS: RTCIceServer[] = [
     },
 ];
 export default class GameScene extends Phaser.Scene {
+    private camera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
     private joystickX = 0;
     private joystickY = 0;
@@ -231,6 +232,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        // getting the main camera
+        this.camera = this.cameras.main;
         // Adding the joystick
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
@@ -266,6 +269,7 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
+            this.camera.setPosition(position.x, position.y);
             this.player.setData("username", user.username);
             this.playerNameText = this.add.text(0, 0, user.display_name, {
                 fontFamily: 'Arial',
@@ -507,6 +511,7 @@ export default class GameScene extends Phaser.Scene {
             direction: this.direction,
             action: this.action
             });
+            this.camera.setPosition(this.player.x, this.player.y)
         }
 
         this.prevState = this.action;
