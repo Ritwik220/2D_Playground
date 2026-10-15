@@ -13,9 +13,13 @@ interface ChatUIProps {
     onNewMessage: (message: Message) => void;
 }
 
-const socket = io({
-    transports: ["websocket"]
-});
+const socket = io(
+            "https://twod-playground.onrender.com",
+            {
+                withCredentials: true,
+                transports: ["websocket"],
+            }
+        );
 
 export default function ChatUI({
     messages,
