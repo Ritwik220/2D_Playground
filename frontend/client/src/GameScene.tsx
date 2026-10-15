@@ -249,6 +249,7 @@ export default class GameScene extends Phaser.Scene {
 
         map.createLayer("Tile Layer 2", tileset, 0, 0);
         map.createLayer("Tile Layer 1", tileset, 0, 0);
+        this.camera.setZoom(3);
         // getting the main camera
         this.camera = this.cameras.main;
         // Adding the joystick
@@ -286,6 +287,7 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
+            this.player.setScale(1);
             // Camera following the player and keeping them on center
             this.camera.startFollow(this.player);
             this.camera.setFollowOffset(5, 5);
