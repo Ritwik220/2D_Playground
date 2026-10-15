@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {Link, useNavigate} from "react-router-dom" 
 
-const url = "";
+const url = import.meta.env.VITE_BACKEND_URL;
 
 export default function LoginCard() {
     // const [isRegister, setIsRegister] = useState(false);

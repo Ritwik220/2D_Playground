@@ -40,14 +40,16 @@ const userSockets = new Map<Number, string>();
 
 const app: Express = express();
 const httpServer = createServer(app);
-const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
-const loginUrl = frontendUrl + "/login";
-const registerUrl = frontendUrl + "/register";
+
+// const frontendUrl = process.env.VITE_FRONTEND_URL || "http://localhost:5173";
+// const loginUrl = frontendUrl + "/login";
+// const registerUrl = frontendUrl + "/register";
+const frontendUrl = "https://2-d-playground.vercel.app/";
 
 // for cors
 app.use(cors({
-  origin: [frontendUrl, registerUrl, loginUrl], 
-  methods: ["GET", "POST", "PATCH"],
+  origin: [frontendUrl], 
+  methods: ["GET", "POST", "PATCH", "OPTIONS"],
   credentials: true
 }));
 
