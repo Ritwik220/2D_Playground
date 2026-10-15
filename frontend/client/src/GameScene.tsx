@@ -269,8 +269,11 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
-            this.cameras.main.startFollow(this.player);
-            this.camera.setPosition(position.x, position.y);
+            // Camera following the player and keeping them on center
+            this.camera.startFollow(this.player);
+            this.camera.setFollowOffset(5, 5);
+            this.camera.centerOn(this.player.x, this.player.y);
+            
             this.player.setData("username", user.username);
             this.playerNameText = this.add.text(0, 0, user.display_name, {
                 fontFamily: 'Arial',
