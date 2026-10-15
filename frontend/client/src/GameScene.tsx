@@ -1,7 +1,8 @@
 import Phaser from "phaser";
 import { EventBus } from "./EventBus";
-import { Socket, io } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { VirtualJoystick } from "phaser-virtual-joystick";
+import {socket} from "./Socket";
 
 const ICE_SERVERS: RTCIceServer[] = [
     { urls: "stun:stun.relay.metered.ca:80" },
@@ -247,13 +248,7 @@ export default class GameScene extends Phaser.Scene {
             this.joystickX = 0;
             this.joystickY = 0;
         });
-        this.socket = io(
-            "https://twod-playground.onrender.com",
-            {
-                withCredentials: true,
-                transports: ["websocket"],
-            }
-        );
+        this.socket = socket;
         this.socket.on("connect", () => {
             console.log("Player Connected:", this.socket.id);
         });

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
+import {socket} from "./Socket";
 
 interface Message {
     id: number;
@@ -13,13 +14,13 @@ interface ChatUIProps {
     onNewMessage: (message: Message) => void;
 }
 
-const socket = io(
-            "https://twod-playground.onrender.com",
-            {
-                withCredentials: true,
-                transports: ["websocket"],
-            }
-        );
+// const socket = io(
+//             "https://twod-playground.onrender.com",
+//             {
+//                 withCredentials: true,
+//                 transports: ["websocket"],
+//             }
+//         );
 
 export default function ChatUI({
     messages,
