@@ -22,7 +22,7 @@ export default function RegisterCard() {
         // console.log("Submitted Data:", formData);
         console.log("In handle submit.\n");
         try{
-            const response = await fetch(url + "/auth/register/", {
+            const response = await fetch(url + "auth/register/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json" // Readies the server for json data
