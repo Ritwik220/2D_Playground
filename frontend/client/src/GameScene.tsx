@@ -256,6 +256,7 @@ export default class GameScene extends Phaser.Scene {
         const objects = map.createLayer("Tile Layer 1", tileset, 0, 0);
         ground.setScale(4);
         objects.setScale(4);
+        objects.setCollisionByExclusion([-1]);
         
         // getting the main camera
         this.camera = this.cameras.main;
@@ -296,6 +297,8 @@ export default class GameScene extends Phaser.Scene {
                 "idle_up"
             );
             this.player.setScale(1);
+            this.physics.add.existing(this.player);
+            this.physics.add.collider(this.player, objects);
             // Camera following the player and keeping them on center
             this.camera.startFollow(this.player);
             this.camera.setFollowOffset(5, 5);
@@ -538,7 +541,7 @@ export default class GameScene extends Phaser.Scene {
         ) {
             const now = this.time.now;
             if(now - this.lastFootstep > 300) {
-                this.sound.play('footstep', { volume: 0.5 });
+                this.sound.play('footstep', { volume: 0.4 });
                 this.lastFootstep = now;
             }
             this.socket.emit("player_move", {
