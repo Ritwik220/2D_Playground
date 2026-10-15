@@ -28,6 +28,7 @@ const ICE_SERVERS: RTCIceServer[] = [
     },
 ];
 export default class GameScene extends Phaser.Scene {
+    private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
     private joystickX = 0;
@@ -79,6 +80,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
+        // Loading running audio
+        this.load.audio('footstep', '/Sounds/running.mp3');
         // Preloading the map
         this.load.tilemapTiledJSON("world", "/Maps/placeholder.json");
         this.load.image("tileset", "/Tilesets/punyworld-overworld-tileset.png");
@@ -235,6 +238,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
         // Replace "YOUR_TILESET_NAME" with the tileset name shown in Tiled.
@@ -254,6 +258,7 @@ export default class GameScene extends Phaser.Scene {
         
         // getting the main camera
         this.camera = this.cameras.main;
+        this.camera.setZoom(2);
         // Adding the joystick
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
@@ -530,6 +535,7 @@ export default class GameScene extends Phaser.Scene {
             moveX !== 0 ||
             moveY !== 0
         ) {
+            this.sound.play('footstep', { volume: 1.5 });
             this.socket.emit("player_move", {
             x: this.player.x,
             y: this.player.y,
@@ -552,6 +558,8 @@ export default class GameScene extends Phaser.Scene {
             const name_tag = this.otherPlayerNameTags.get(id);
             
             if (targetX === undefined || targetY === undefined) return;
+            if(sprite.x != targetX || sprite.y != targetY)
+                this.sound.play('footstep', { volume: 1.5 });
 
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
