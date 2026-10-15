@@ -79,6 +79,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
+        // Preloading the map
+        this.load.tilemapTiledJSON("world", "/Maps/placeholder.json");
+        this.load.image("tileset", "/Tilesets/punyworld-overworld-tileset.png");
         // Preloading the keys and the spritesheets
         this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
         this.Actions.forEach((action: string) => {
@@ -232,6 +235,20 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        const map = this.make.tilemap({ key: "world" });
+
+        // Replace "YOUR_TILESET_NAME" with the tileset name shown in Tiled.
+        const tileset = map.addTilesetImage(
+            "punyworld-overworld-tileset",
+            "tileset"
+        );
+
+        if (!tileset) {
+            throw new Error("Could not load map tileset");
+        }
+
+        map.createLayer("Tile Layer 2", tileset, 0, 0);
+        map.createLayer("Tile Layer 1", tileset, 0, 0);
         // getting the main camera
         this.camera = this.cameras.main;
         // Adding the joystick
@@ -273,7 +290,7 @@ export default class GameScene extends Phaser.Scene {
             this.camera.startFollow(this.player);
             this.camera.setFollowOffset(5, 5);
             this.camera.centerOn(this.player.x, this.player.y);
-            
+
             this.player.setData("username", user.username);
             this.playerNameText = this.add.text(0, 0, user.display_name, {
                 fontFamily: 'Arial',
