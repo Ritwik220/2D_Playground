@@ -240,16 +240,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        // Add text object at the top left corner (x: 10, y: 10)
-        this.fpsText = this.add.text(10, 10, 'FPS: 0', {
-            fontFamily: 'Arial',
-            fontSize: '18px',
-            color: '#00ff00'
-        });
-
-        // Ensure the text stays fixed relative to the camera/screen
-        this.fpsText.setScrollFactor(0);
-        this.fpsText.setDepth(1000); // Keep it on top of other objects
         // this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
@@ -272,6 +262,20 @@ export default class GameScene extends Phaser.Scene {
         // getting the main camera
         this.camera = this.cameras.main;
         this.camera.setZoom(2);
+        
+        // Add text object at the top left corner (x: 10, y: 10)
+        const startX = this.camera.scrollX + 10;
+        const startY = this.camera.scrollY + 10;
+        this.fpsText = this.add.text(startX, startY, 'FPS: 0', {
+            fontFamily: 'Arial',
+            fontSize: '18px',
+            color: '#00ff00'
+        });
+
+        // Ensure the text stays fixed relative to the camera/screen
+        this.fpsText.setScrollFactor(0);
+        this.fpsText.setDepth(1000); // Keep it on top of other objects
+        
         // Adding the joystick
         this.joystick = new VirtualJoystick({scene: this});
         this.add.existing(this.joystick)
