@@ -475,6 +475,11 @@ export default class GameScene extends Phaser.Scene {
                 this.otherPlayersPopup.get(player.user_id)?.setPosition(sprite.x, sprite.y);
             }
 
+            const now = this.time.now;
+            if(now - sprite.getData("lastFootStep") > 300) {
+                this.sound.play('footstep', { volume: 0.4 });
+                sprite.setData("lastFootStep", now);
+            }
             sprite.setData("targetX", player.x);
             sprite.setData("targetY", player.y);
 
@@ -703,13 +708,6 @@ export default class GameScene extends Phaser.Scene {
             
             if (targetX === undefined || targetY === undefined) return;
             
-            if(sprite.x != targetX || sprite.y != targetY) {
-                const now = this.time.now;
-                if(now - sprite.getData("lastFootStep") > 300) {
-                    this.sound.play('footstep', { volume: 0.4 });
-                    sprite.setData("lastFootStep", now);
-                }
-            }
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
             if(name_tag) {
