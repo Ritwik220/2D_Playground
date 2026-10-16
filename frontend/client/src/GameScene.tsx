@@ -28,6 +28,7 @@ const ICE_SERVERS: RTCIceServer[] = [
     },
 ];
 export default class GameScene extends Phaser.Scene {
+    private fpsText: any;
     private lastFootstep = 0;
     // private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
@@ -126,7 +127,7 @@ export default class GameScene extends Phaser.Scene {
             player.y,
             "idle_down"
         );
-
+        sprite.setData("lastFootStep", 0);
         sprite.setData("targetX", player.x);
         sprite.setData("targetY", player.y);
 
@@ -239,6 +240,16 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        // Add text object at the top left corner (x: 10, y: 10)
+        this.fpsText = this.add.text(10, 10, 'FPS: 0', {
+            fontFamily: 'Arial',
+            fontSize: '18px',
+            color: '#00ff00'
+        });
+
+        // Ensure the text stays fixed relative to the camera/screen
+        this.fpsText.setScrollFactor(0);
+        this.fpsText.setDepth(1000); // Keep it on top of other objects
         // this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
@@ -485,6 +496,10 @@ export default class GameScene extends Phaser.Scene {
         if(!this.player) return;
         this.joystick?.update();
 
+        // Get the actual FPS from the game loop and round it
+        const fps = Math.floor(this.game.loop.actualFps);
+        this.fpsText.setText(`FPS: ${fps}`);
+
 
         let moveX = 0;
         let moveY = 0;
@@ -566,8 +581,14 @@ export default class GameScene extends Phaser.Scene {
             const name_tag = this.otherPlayerNameTags.get(id);
             
             if (targetX === undefined || targetY === undefined) return;
-            if(sprite.x != targetX || sprite.y != targetY)
-                this.sound.play('footstep', { volume: 0.5 });
+            
+            if(sprite.x != targetX || sprite.y != targetY) {
+                const now = this.time.now;
+                if(now - sprite.getData("lastFootStep") > 300) {
+                    this.sound.play('footstep', { volume: 0.4 });
+                    sprite.setData("lastFootStep", now);
+                }
+            }
 
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
