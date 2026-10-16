@@ -156,6 +156,7 @@ export default class GameScene extends Phaser.Scene {
             children.push(rowBg, text);
         });
         const container = this.add.container(player.x, player.y+10, children);
+        container.setDepth(1000);
         this.otherPlayersPopup.set(id, container);
         // 2. Strongly typed "click outside" detection
         this.input.on('pointerdown', (currentlyOver: Phaser.GameObjects.GameObject[]) => {
