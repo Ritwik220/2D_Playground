@@ -406,6 +406,12 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
+
+
+            this.player.setData("username", user.username);
+            this.player.setData("id", user.id);
+
+
             this.player.setInteractive();
 
 
@@ -423,7 +429,7 @@ export default class GameScene extends Phaser.Scene {
             this.camera.setFollowOffset(5, 5);
             this.camera.centerOn(this.player.x, this.player.y);
 
-            this.player.setData("username", user.username);
+
             this.playerNameText = this.add.text(0, 0, user.display_name, {
                 fontFamily: 'Arial',
                 fontSize: '14px',
@@ -655,6 +661,9 @@ export default class GameScene extends Phaser.Scene {
         if(this.playerNameText) {
             this.playerNameText.setPosition(this.player.x, this.player.y - 30);
         }
+        if(this.otherPlayersPopup.has(this.player.getData("id"))) {
+            this.otherPlayersPopup.get(this.player.getData("id"))?.setPosition(this.player.x, this.player.y)
+        }
 
         if (
             this.prevState !== this.action ||
@@ -695,6 +704,9 @@ export default class GameScene extends Phaser.Scene {
                 if(now - sprite.getData("lastFootStep") > 300) {
                     this.sound.play('footstep', { volume: 0.4 });
                     sprite.setData("lastFootStep", now);
+                }
+                if(this.otherPlayersPopup.has(id)) {
+                    this.otherPlayersPopup.get(id)?.setPosition(sprite.x, sprite.y);
                 }
             }
 
