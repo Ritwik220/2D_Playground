@@ -76,6 +76,7 @@ export default class GameScene extends Phaser.Scene {
         Number,
         Phaser.GameObjects.Text
     >();
+    private otherPlayersPopup = new Map<Number, Phaser.GameObjects.Container>
 
     constructor() {
         super("Game Scene");
@@ -106,6 +107,74 @@ export default class GameScene extends Phaser.Scene {
     }
 
 
+    private createPlayerMenu(player: Phaser.GameObjects.Sprite, id:Number) {
+        if(this.otherPlayersPopup.has(id)) {
+            this.otherPlayersPopup.get(id)?.destroy();
+            this.otherPlayersPopup.delete(id);
+        }
+        const bg = this.add.rectangle(0, 0, 180, 190, 0x363199).setOrigin(0).setStrokeStyle(1, 0x454b57);
+        const name = this.add.text(12, 12, player.getData("username"), {
+            fontSize: "16px",
+            color: "#ffffff",
+            fontStyle: "bold",
+            fontFamily: "Arial"
+        });
+        const items = ["View profile", "Send message", "Add friend"];
+
+        const children: Phaser.GameObjects.GameObject[] = [bg, name];
+
+        items.forEach((label, i) => {
+            const rowY = 48 + i * 42;
+
+            const rowBg = this.add.rectangle(
+                90, rowY + 12, 164, 36, 0x2b3039
+            );
+
+            const text = this.add.text(
+                16, rowY, label,
+                {
+                    fontSize: "14px",
+                    color: "#e8edf5",
+                    fontFamily: "Arial"
+                }
+            );
+
+            rowBg.setInteractive({ useHandCursor: true });
+
+            rowBg.on("pointerover", () => {
+                rowBg.setFillStyle(0x414957);
+            });
+
+            rowBg.on("pointerout", () => {
+                rowBg.setFillStyle(0x2b3039);
+            });
+
+            rowBg.on("pointerdown", () => {
+                console.log(`Clicked: ${label} on ${player.getData("username")}`);
+            });
+
+            children.push(rowBg, text);
+        });
+        const container = this.add.container(player.x, player.y+10, children);
+        this.otherPlayersPopup.set(id, container);
+        // 2. Strongly typed "click outside" detection
+        this.input.on('pointerdown', (currentlyOver: Phaser.GameObjects.GameObject[]) => {
+            // Safely verify it's an array to avoid the runtime error
+            const clickedObjects = Array.isArray(currentlyOver) ? currentlyOver : [];
+
+            // Check if the clicked target matches your typed GameObjects
+            const clickedOnMenuOrPlayer = clickedObjects.some(obj => obj === this.player || obj === bg);
+
+            if (!clickedOnMenuOrPlayer) {
+                container.setVisible(false);
+                container.destroy();
+                this.otherPlayersPopup.delete(id);
+                return;
+            }
+        });
+        
+    }
+
     // helper function
     private addOrUpdateOtherPlayer(player: any, user: any) {
         if (user && player.user_id === user.id) return;
@@ -131,6 +200,9 @@ export default class GameScene extends Phaser.Scene {
         sprite.setData("lastFootStep", 0);
         sprite.setData("targetX", player.x);
         sprite.setData("targetY", player.y);
+        sprite.setData("username", player.username);
+
+        this.createPlayerMenu(sprite, player.id);
 
         const nameTag = this.add.text(
             player.x,
@@ -257,6 +329,7 @@ export default class GameScene extends Phaser.Scene {
         // Combine into a container and hide it initially
         const popupMenu = this.add.container(0, 0, [menuBg, menuText]);
         popupMenu.setVisible(false);
+        popupMenu.setDepth(1000);
         // this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
@@ -286,7 +359,7 @@ export default class GameScene extends Phaser.Scene {
         this.fpsText = this.add.text(startX, startY, 'FPS: 0', {
             fontFamily: 'Arial',
             fontSize: '18px',
-            color: '#00ff00'
+            color: '#1e00ff'
         });
 
         // Ensure the text stays fixed relative to the camera/screen
@@ -328,27 +401,14 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
-            this.player.setInteractive();
-
 
 
             this.player.on('pointerup', () => {
-                popupMenu.setPosition(this.player.x + 70, this.player.y - 40);
-                popupMenu.setVisible(!popupMenu.visible);
-            });
+                this.createPlayerMenu(this.player, user.id);
+            })
+            
 
-            // 2. Strongly typed "click outside" detection
-            this.input.on('pointerdown', (currentlyOver: Phaser.GameObjects.GameObject[]) => {
-                // Safely verify it's an array to avoid the runtime error
-                const clickedObjects = Array.isArray(currentlyOver) ? currentlyOver : [];
 
-                // Check if the clicked target matches your typed GameObjects
-                const clickedOnMenuOrPlayer = clickedObjects.some(obj => obj === this.player || obj === menuBg);
-
-                if (!clickedOnMenuOrPlayer) {
-                    popupMenu.setVisible(false);
-                }
-            });
             this.player.setScale(1);
             this.physics.add.existing(this.player);
             this.physics.add.collider(this.player, objects);
