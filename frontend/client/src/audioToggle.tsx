@@ -1,5 +1,6 @@
-import { socket } from "./Socket";
+// import { socket } from "./Socket";
 import { useState } from "react";
+import { EventBus } from "./EventBus";
 
 export default function AudioToggle() {
     const [isChecked, setIsChecked] = useState(false);
@@ -8,7 +9,7 @@ export default function AudioToggle() {
         const checked = event.target.checked;
 
         setIsChecked(checked);
-        socket.emit(checked ? "Microphone on" : "Microphone off");
+        EventBus.emit("microphone_toggle", isChecked);
     };
 
     return (

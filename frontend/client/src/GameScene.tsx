@@ -393,18 +393,17 @@ export default class GameScene extends Phaser.Scene {
             this.socket.connect();
         }
 
-        socket.on("Microphone off", () => {
-            if(!this.localStream) return;
-            this.localStream?.getAudioTracks().forEach(track => {
-                track.enabled = false;
-            });
-        });
+        EventBus.on("microphone_toggle", (enabled: boolean) => {
+            if (!this.localStream) {
+                console.warn("Microphone stream is not initialized");
+                return;
+            }
 
-        socket.on("Microphone on", () => {
-            if(!this.localStream) return;
-            this.localStream?.getAudioTracks().forEach(track => {
-                track.enabled = true;
+            this.localStream.getAudioTracks().forEach(track => {
+                track.enabled = enabled;
             });
+
+            console.log("Microphone enabled:", enabled);
         });
 
         this.socket.on("connect", () => {
