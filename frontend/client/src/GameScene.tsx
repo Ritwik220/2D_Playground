@@ -612,13 +612,16 @@ export default class GameScene extends Phaser.Scene {
         }
 
         socket.on("Microphone off", () => {
-            const audio = this.localStream.getAudioTracks()[0];
-            audio.enabled = false;
-        })
+            this.localStream?.getAudioTracks().forEach(track => {
+                track.enabled = false;
+            });
+        });
+
         socket.on("Microphone on", () => {
-            const audio = this.localStream.getAudioTracks()[0];
-            audio.enabled = true;
-        })
+            this.localStream?.getAudioTracks().forEach(track => {
+                track.enabled = true;
+            });
+        });
 
         EventBus.emit("lol", this);
     }
