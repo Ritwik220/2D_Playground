@@ -392,6 +392,21 @@ export default class GameScene extends Phaser.Scene {
         if (!this.socket.connected) {
             this.socket.connect();
         }
+
+        socket.on("Microphone off", () => {
+            if(!this.localStream) return;
+            this.localStream?.getAudioTracks().forEach(track => {
+                track.enabled = false;
+            });
+        });
+
+        socket.on("Microphone on", () => {
+            if(!this.localStream) return;
+            this.localStream?.getAudioTracks().forEach(track => {
+                track.enabled = true;
+            });
+        });
+
         this.socket.on("connect", () => {
             console.log("Player Connected:", this.socket.id);
         });
@@ -611,17 +626,7 @@ export default class GameScene extends Phaser.Scene {
             console.error("Failed to get microphone access:", err);
         }
 
-        socket.on("Microphone off", () => {
-            this.localStream?.getAudioTracks().forEach(track => {
-                track.enabled = false;
-            });
-        });
-
-        socket.on("Microphone on", () => {
-            this.localStream?.getAudioTracks().forEach(track => {
-                track.enabled = true;
-            });
-        });
+        
 
         EventBus.emit("lol", this);
     }
