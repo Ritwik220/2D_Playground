@@ -205,7 +205,7 @@ export default class GameScene extends Phaser.Scene {
         sprite.setData("username", player.username);
 
         sprite.on("pointerup", () => {
-            this.createPlayerMenu(sprite, player.id);
+            this.createPlayerMenu(sprite, player.user_id);
         })
         
 
@@ -409,7 +409,7 @@ export default class GameScene extends Phaser.Scene {
 
 
             this.player.setData("username", user.username);
-            this.player.setData("id", user.id);
+            this.player.setData("id", user.user_id);
 
 
             this.player.setInteractive();
@@ -469,6 +469,10 @@ export default class GameScene extends Phaser.Scene {
                 this.addOrUpdateOtherPlayer(player, null);
                 sprite = this.otherPlayers.get(player.user_id);
                 if(!sprite) return;
+            }
+
+            if(this.otherPlayersPopup.has(player.user_id)) {
+                this.otherPlayersPopup.get(player.user_id)?.setPosition(sprite.x, sprite.y);
             }
 
             sprite.setData("targetX", player.x);
@@ -705,9 +709,6 @@ export default class GameScene extends Phaser.Scene {
                     this.sound.play('footstep', { volume: 0.4 });
                     sprite.setData("lastFootStep", now);
                 }
-            }
-            if(this.otherPlayersPopup.has(id)) {
-                this.otherPlayersPopup.get(id)?.setPosition(sprite.x, sprite.y);
             }
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
