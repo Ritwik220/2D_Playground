@@ -332,21 +332,23 @@ export default class GameScene extends Phaser.Scene {
 
 
 
-        // 3. Listen for clicks on the player
-        this.player.on('pointerup', () => {
-            // Position the menu near the player (e.g., offset to the right/top)
-            popupMenu.setPosition(this.player.x + 70, this.player.y - 40);
-            
-            // Toggle menu visibility
-            popupMenu.setVisible(!popupMenu.visible);
-        });
+            this.player.on('pointerup', () => {
+                popupMenu.setPosition(this.player.x + 70, this.player.y - 40);
+                popupMenu.setVisible(!popupMenu.visible);
+            });
 
-        // Optional: Hide menu when clicking outside
-        this.input.on('pointerdown', (currentlyOver: any) => {
-            if (!currentlyOver.includes(this.player) && !currentlyOver.includes(menuBg)) {
-                popupMenu.setVisible(false);
-            }
-        });
+            // 2. Strongly typed "click outside" detection
+            this.input.on('pointerdown', (currentlyOver: Phaser.GameObjects.GameObject[]) => {
+                // Safely verify it's an array to avoid the runtime error
+                const clickedObjects = Array.isArray(currentlyOver) ? currentlyOver : [];
+
+                // Check if the clicked target matches your typed GameObjects
+                const clickedOnMenuOrPlayer = clickedObjects.some(obj => obj === this.player || obj === menuBg);
+
+                if (!clickedOnMenuOrPlayer) {
+                    popupMenu.setVisible(false);
+                }
+            });
             this.player.setScale(1);
             this.physics.add.existing(this.player);
             this.physics.add.collider(this.player, objects);
