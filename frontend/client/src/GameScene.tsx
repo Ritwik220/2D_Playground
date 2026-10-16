@@ -127,6 +127,7 @@ export default class GameScene extends Phaser.Scene {
             player.y,
             "idle_down"
         );
+        sprite.setInteractive();
         sprite.setData("lastFootStep", 0);
         sprite.setData("targetX", player.x);
         sprite.setData("targetY", player.y);
@@ -240,6 +241,22 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
+        // 2. Build the pop-up menu inside a Container
+        const menuBg = this.add.rectangle(0, 0, 120, 80, 0x000000, 0.8);
+        const menuText = this.add.text(-45, -25, 'Action 1\nAction 2', {
+            font: '16px Arial',
+            color: '#ffffff'
+        });
+
+        // Make menu items interactive if needed
+        menuBg.setInteractive();
+        menuBg.on('pointerdown', () => {
+            console.log('Menu option clicked');
+        });
+
+        // Combine into a container and hide it initially
+        const popupMenu = this.add.container(0, 0, [menuBg, menuText]);
+        popupMenu.setVisible(false);
         // this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
@@ -311,6 +328,25 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
+            this.player.setInteractive();
+
+
+
+        // 3. Listen for clicks on the player
+        this.player.on('pointerup', () => {
+            // Position the menu near the player (e.g., offset to the right/top)
+            popupMenu.setPosition(this.player.x + 70, this.player.y - 40);
+            
+            // Toggle menu visibility
+            popupMenu.setVisible(!popupMenu.visible);
+        });
+
+        // Optional: Hide menu when clicking outside
+        this.input.on('pointerdown', (currentlyOver: any) => {
+            if (!currentlyOver.includes(this.player) && !currentlyOver.includes(menuBg)) {
+                popupMenu.setVisible(false);
+            }
+        });
             this.player.setScale(1);
             this.physics.add.existing(this.player);
             this.physics.add.collider(this.player, objects);
