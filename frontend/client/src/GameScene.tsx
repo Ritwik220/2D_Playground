@@ -159,9 +159,10 @@ export default class GameScene extends Phaser.Scene {
         container.setDepth(1000);
         this.otherPlayersPopup.set(id, container);
         // 2. Strongly typed "click outside" detection
-        this.input.on('pointerdown', (currentlyOver: Phaser.GameObjects.GameObject[]) => {
+        this.input.on('pointerdown', (pointer:any, currentlyOver: Phaser.GameObjects.GameObject[]) => {
             // Safely verify it's an array to avoid the runtime error
             const clickedObjects = Array.isArray(currentlyOver) ? currentlyOver : [];
+            console.log(pointer);
 
             // Check if the clicked target matches your typed GameObjects
             const clickedOnMenuOrPlayer = clickedObjects.some(obj => obj === this.player || obj === bg);
@@ -203,7 +204,10 @@ export default class GameScene extends Phaser.Scene {
         sprite.setData("targetY", player.y);
         sprite.setData("username", player.username);
 
-        this.createPlayerMenu(sprite, player.id);
+        sprite.on("pointerup", () => {
+            this.createPlayerMenu(sprite, player.id);
+        })
+        
 
         const nameTag = this.add.text(
             player.x,
@@ -314,24 +318,24 @@ export default class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        // 2. Build the pop-up menu inside a Container
-        const menuBg = this.add.rectangle(0, 0, 120, 80, 0x000000, 0.8);
-        const menuText = this.add.text(-45, -25, 'Action 1\nAction 2', {
-            font: '16px Arial',
-            color: '#ffffff'
-        });
+        // // 2. Build the pop-up menu inside a Container
+        // const menuBg = this.add.rectangle(0, 0, 120, 80, 0x000000, 0.8);
+        // const menuText = this.add.text(-45, -25, 'Action 1\nAction 2', {
+        //     font: '16px Arial',
+        //     color: '#ffffff'
+        // });
 
-        // Make menu items interactive if needed
-        menuBg.setInteractive();
-        menuBg.on('pointerdown', () => {
-            console.log('Menu option clicked');
-        });
+        // // Make menu items interactive if needed
+        // menuBg.setInteractive();
+        // menuBg.on('pointerdown', () => {
+        //     console.log('Menu option clicked');
+        // });
 
-        // Combine into a container and hide it initially
-        const popupMenu = this.add.container(0, 0, [menuBg, menuText]);
-        popupMenu.setVisible(false);
-        popupMenu.setDepth(1000);
-        // this.footstepSound = this.sound.add('footstep');
+        // // Combine into a container and hide it initially
+        // const popupMenu = this.add.container(0, 0, [menuBg, menuText]);
+        // popupMenu.setVisible(false);
+        // popupMenu.setDepth(1000);
+        // // this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
         // Replace "YOUR_TILESET_NAME" with the tileset name shown in Tiled.
@@ -402,6 +406,7 @@ export default class GameScene extends Phaser.Scene {
                 position.y,
                 "idle_up"
             );
+            this.player.setInteractive();
 
 
             this.player.on('pointerup', () => {
