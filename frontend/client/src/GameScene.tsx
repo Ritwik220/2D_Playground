@@ -705,11 +705,10 @@ export default class GameScene extends Phaser.Scene {
                     this.sound.play('footstep', { volume: 0.4 });
                     sprite.setData("lastFootStep", now);
                 }
-                if(this.otherPlayersPopup.has(id)) {
-                    this.otherPlayersPopup.get(id)?.setPosition(sprite.x, sprite.y);
-                }
             }
-
+            if(this.otherPlayersPopup.has(id)) {
+                this.otherPlayersPopup.get(id)?.setPosition(sprite.x, sprite.y);
+            }
             sprite.x = Phaser.Math.Linear(sprite.x, targetX, 0.25);
             sprite.y = Phaser.Math.Linear(sprite.y, targetY, 0.25);
             if(name_tag) {
