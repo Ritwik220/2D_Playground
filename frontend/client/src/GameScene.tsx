@@ -611,6 +611,15 @@ export default class GameScene extends Phaser.Scene {
             console.error("Failed to get microphone access:", err);
         }
 
+        socket.on("Microphone off", () => {
+            const audio = this.localStream.getAudioTracks()[0];
+            audio.enabled = false;
+        })
+        socket.on("Microphone on", () => {
+            const audio = this.localStream.getAudioTracks()[0];
+            audio.enabled = true;
+        })
+
         EventBus.emit("lol", this);
     }
 
