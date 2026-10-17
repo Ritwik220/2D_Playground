@@ -20,6 +20,8 @@ interface PrivateChatProps {
     onClose: () => void;
 }
 
+const backend_url = import.meta.env.VITE_BACKEND_URL
+
 export default  function PrivateChatUI({
     display_name,
     other_display_name,
@@ -39,7 +41,7 @@ export default  function PrivateChatUI({
         async function loadMessages() {
             try {
                 const response = await fetch(
-                    `/api/chats/${id}/${other_id}`,
+                    `${backend_url}/api/chats/${id}/${other_id}`,
                     { credentials: "include" }
                 );
 

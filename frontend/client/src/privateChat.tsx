@@ -2,7 +2,7 @@ import PrivateChatUI from "./privateChatUI";
 import { useState, useEffect } from "react";
 import { socket } from "./Socket";
 
-
+const backend_url = import.meta.env.VITE_BACKEND_URL
 
 
 export default function PrivateChat() {
@@ -22,7 +22,7 @@ export default function PrivateChat() {
             console.log("chat handshake accepted");
             try {
                 const [response1, response2] = await Promise.all([
-                    fetch(`/api/users/${player_id}`, {
+                    fetch(`${backend_url}/api/users/${player_id}`, {
                         credentials: "include",
                     }),
                     fetch(`/api/users/${other_id}`, {
