@@ -54,6 +54,7 @@ export default function AuthCheck() {
     if (authenticated) {
         return (
         <div className="relative w-screen h-screen overflow-hidden bg-black">
+            <PrivateChat/>
             {/* The Game serves as the background canvas layer */}
             <PhaserGame />
             
@@ -61,7 +62,6 @@ export default function AuthCheck() {
             <div className="absolute top-4 right-4 z-50 w-80 max-h-[80vh] flex flex-col">
                 <GlobalChat />
             </div>
-            <PrivateChat/>
             <AudioToggle />
 
         </div>
