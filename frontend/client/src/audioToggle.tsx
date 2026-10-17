@@ -3,7 +3,7 @@ import { useState } from "react";
 import { EventBus } from "./EventBus";
 
 export default function AudioToggle() {
-    const [isChecked, setIsChecked] = useState(false);
+    const [isChecked, setIsChecked] = useState(true);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const checked = event.target.checked;

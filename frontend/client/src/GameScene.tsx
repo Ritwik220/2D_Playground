@@ -119,7 +119,7 @@ export default class GameScene extends Phaser.Scene {
             fontStyle: "bold",
             fontFamily: "Arial"
         });
-        const items = ["View profile", "Send message", "Add friend"];
+        const items = ["View profile", "Start Chat", "Add friend"];
 
         const children: Phaser.GameObjects.GameObject[] = [bg, name];
 
@@ -150,6 +150,7 @@ export default class GameScene extends Phaser.Scene {
             });
 
             rowBg.on("pointerdown", () => {
+                socket.emit("chat_handshake_initiated", id);
                 console.log(`Clicked: ${label} on ${player.getData("username")}`);
             });
 
@@ -405,10 +406,10 @@ export default class GameScene extends Phaser.Scene {
 
             console.log("Microphone enabled:", enabled);
         });
-
         this.socket.on("connect", () => {
             console.log("Player Connected:", this.socket.id);
         });
+
 
         this.socket.on("spawn player", (position, user) => {
             console.log("in spawn");
@@ -471,6 +472,11 @@ export default class GameScene extends Phaser.Scene {
             console.log(player.user_name);
             this.addOrUpdateOtherPlayer(player, null);
         });
+
+        this.socket.on("chat_handshake_requested", (id) => {
+            console.log(id);
+            // send chat_hand_shake_answer to backedn, create a room there and send chat_handshake_accepted to the other client
+        })
 
         
         // Move the sprite of the user(other than out player) that moved

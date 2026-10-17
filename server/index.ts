@@ -200,6 +200,7 @@ io.on("connection", async (socket) => {
         socket.disconnect(true);
         return;
     }
+    socket.join(user.id);
 
         // Voice readiness handshake.
     // When a client's mic is ready, it tells us; we hand it the list of
@@ -240,6 +241,10 @@ io.on("connection", async (socket) => {
             candidate
         });
     });
+
+    socket.on("chat_handshake_initiated", (id) => {
+        io.to(id).emit("chat_handshake_requested", player.user_id);
+    })
     /*
     CREATE TABLE global_chat_messages (
     id SERIAL PRIMARY KEY,
