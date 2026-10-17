@@ -4,6 +4,7 @@ import PhaserGame from "./PhaserGame";
 import { useNavigate } from "react-router-dom";
 import GlobalChat from "./globalChat";
 import AudioToggle from "./audioToggle";
+import PrivateChat from "./privateChat";
 
 
 const url = import.meta.env.VITE_BACKEND_URL  || "http://localhost:3000/";
@@ -60,6 +61,7 @@ export default function AuthCheck() {
             <div className="absolute top-4 right-4 z-50 w-80 max-h-[80vh] flex flex-col">
                 <GlobalChat />
             </div>
+            <PrivateChat/>
             <AudioToggle />
 
         </div>
