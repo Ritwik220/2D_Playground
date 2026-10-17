@@ -4,7 +4,6 @@ import { socket } from "./Socket";
 
 interface Message {
     id: number;
-    username: string;
     message: string;
     created_at: string;
     sender_id: number;
@@ -192,7 +191,7 @@ export default  function PrivateChatUI({
                                 }`}>
                                     <span className="px-1 text-[10px]
                                                      font-medium text-slate-500">
-                                        {isMine ? "You" : message.username}
+                                        {isMine ? "You" : other_display_name}
                                     </span>
 
                                     <div className={`rounded-2xl px-3.5 py-2.5
