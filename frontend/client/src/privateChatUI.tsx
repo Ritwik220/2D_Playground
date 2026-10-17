@@ -103,7 +103,7 @@ export default  function PrivateChatUI({
     return (
         <div className="flex h-full min-h-0 flex-col overflow-hidden
                         rounded-2xl border border-slate-700/70
-                        bg-slate-950 text-slate-100 shadow-2xl">
+                        bg-slate-950 text-slate-100 shadow-2xl z-50">
 
             {/* Header */}
             <header className="flex items-center gap-3 border-b
