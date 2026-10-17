@@ -200,7 +200,7 @@ io.on("connection", async (socket) => {
         socket.disconnect(true);
         return;
     }
-    socket.join(user.id);
+    socket.join(String(user.id));
 
         // Voice readiness handshake.
     // When a client's mic is ready, it tells us; we hand it the list of
