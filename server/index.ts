@@ -837,11 +837,11 @@ app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
             [chat_room]
         );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                error: "No messages found"
-            });
-        }
+        // if (result.rows.length === 0) {
+        //     return res.status(404).json({
+        //         error: "No messages found"
+        //     });
+        // }
 
         res.json(result.rows);
     }
