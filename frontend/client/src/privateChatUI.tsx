@@ -21,7 +21,7 @@ interface PrivateChatProps {
     onClose: any;
 }
 
-export default  async function PrivateChatUI({
+export default  function PrivateChatUI({
     display_name,
     other_display_name,
     username,
@@ -30,6 +30,7 @@ export default  async function PrivateChatUI({
     other_id,
     onClose
 }: PrivateChatProps) {
+    console.log(display_name);
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
 
