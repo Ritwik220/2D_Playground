@@ -243,6 +243,7 @@ io.on("connection", async (socket) => {
     });
 
     socket.on("chat_handshake_initiated", (id) => {
+        console.log("Initiating handshake");
         const otherId = Number(id);
 
         if (!Number.isInteger(otherId) || otherId === Number(player.user_id)) {
@@ -264,6 +265,7 @@ io.on("connection", async (socket) => {
     });
 
     socket.on("chat_handshake_answer", (id) => {
+        console.log("answering handshake");
         const otherId = Number(id);
 
         if (!Number.isInteger(otherId) || otherId === Number(player.user_id)) {

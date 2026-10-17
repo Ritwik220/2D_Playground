@@ -19,6 +19,7 @@ export default function PrivateChat() {
             other_id: number,
             player_id: number
         ) => {
+            console.log("chat handshake accepted");
             try {
                 const [response1, response2] = await Promise.all([
                     fetch(`/api/users/${player_id}`, {
@@ -57,7 +58,7 @@ export default function PrivateChat() {
             socket.off("chat_handshake_accepted", handleHandshakeAccepted);
         };
     }, []);
-    
+
     const return_val = () => {
         if(isOpen)
             return <PrivateChatUI display_name={displayName} other_display_name={otherDisplayName} username={username} other_username={otherUsername} id={id} other_id={otherId} onClose={() => setIsOpen(false)}/>;

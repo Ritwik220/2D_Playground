@@ -476,6 +476,7 @@ export default class GameScene extends Phaser.Scene {
         this.socket.on("chat_handshake_requested", (id) => {
             console.log(id);
             socket.emit("chat_handshake_answer", id);
+            console.log("handshake requested");
             // send chat_hand_shake_answer to backend, create a room there and send chat_handshake_accepted to the other client
         })
 
