@@ -41,7 +41,7 @@ export default  function PrivateChatUI({
         async function loadMessages() {
             try {
                 const response = await fetch(
-                    `${backend_url}/api/chats/${id}/${other_id}`,
+                    `${backend_url}api/chats/${id}/${other_id}`,
                     { credentials: "include" }
                 );
 
