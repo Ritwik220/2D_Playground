@@ -11,6 +11,8 @@ export default function PrivateChat() {
     const [otherDisplayName, setOtherDisplayName] = useState("");
     const [username, setUsername] = useState("");
     const [otherUsername, setOtherUsername] = useState("");
+    const [id, setId] = useState(-1);
+    const [otherId, setOtherId] = useState(-1);
 
     socket.on("chat_handshake_accepted", async (other_id, player_id) => {
         try {
@@ -39,6 +41,8 @@ export default function PrivateChat() {
             setOtherUsername(data2.user_name);
             setDisplayName(data1.display_name);
             setOtherDisplayName(data2.display_name);
+            setId(data1.id);
+            setOtherId(data2.id);
         }
         catch(err) {
             console.error("Error to get users: ", err);
@@ -46,7 +50,7 @@ export default function PrivateChat() {
     })
     const return_val = () => {
         if(isOpen)
-            return <PrivateChatUI display_name="" other_display_name="" username= "" other_username=""/>;
+            return <PrivateChatUI display_name={displayName} other_display_name={otherDisplayName} username={username} other_username={otherUsername} id={id} other_id={otherId} onClose={() => setIsOpen(false)}/>;
         else
             return;
     }

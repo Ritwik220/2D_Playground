@@ -254,6 +254,70 @@ io.on("connection", async (socket) => {
         // other_username,
         io.to(room).emit("chat_handshake_accepted", id, player.user_id);
     })
+
+    /*
+    CREATE TABLE
+    metaverse=# CREATE TABLE chat_messages (
+        id SERIAL PRIMARY KEY,
+        sender_id INTEGER NOT NULL REFERENCES users(id),
+        receiver_id INTEGER NOT NULL REFERENCES users(id),
+        message TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+        chat_room TEXT
+    );
+    */
+   socket.on(
+        "private_chat_message_sent",
+        async ({ message, receiver_id }) => {
+            try {
+                if (
+                    typeof message !== "string" ||
+                    !message.trim() ||
+                    message.trim().length > 500 ||
+                    !Number.isInteger(Number(receiver_id))
+                ) {
+                    return;
+                }
+
+                // Trust the authenticated socket, not a client-supplied sender ID.
+                const sender_id = Number(user.id);
+                const receiverId = Number(receiver_id);
+
+                const chat_room =
+                    sender_id < receiverId
+                        ? `${sender_id}_${receiverId}`
+                        : `${receiverId}_${sender_id}`;
+
+                // Ensure the recipient exists.
+                const recipient = await db.query(
+                    "SELECT id FROM users WHERE id = $1",
+                    [receiverId]
+                );
+
+                if (!recipient.rows.length || sender_id === receiverId) {
+                    return;
+                }
+
+                const result = await db.query(
+                    `INSERT INTO chat_messages
+                        (sender_id, receiver_id, message, chat_room)
+                    VALUES ($1, $2, $3, $4)
+                    RETURNING id, sender_id, receiver_id, message, created_at`,
+                    [sender_id, receiverId, message.trim(), chat_room]
+                );
+
+                // Deliver only to the two participants' shared room.
+                io.to(chat_room).emit("private_chat_message", {
+                    ...result.rows[0],
+                    sender_id: Number(result.rows[0].sender_id),
+                    receiver_id: Number(result.rows[0].receiver_id),
+                });
+            } catch (err) {
+                console.error("Private message failed:", err);
+            }
+        }
+    );
+
     /*
     CREATE TABLE global_chat_messages (
     id SERIAL PRIMARY KEY,
@@ -714,6 +778,7 @@ metaverse=# CREATE TABLE chat_messages (
     receiver_id INTEGER NOT NULL REFERENCES users(id),
     message TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
+    chat_room TEXT
 );
 */
 
@@ -722,15 +787,15 @@ metaverse=# CREATE TABLE chat_messages (
 app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
     const senderId = Number(req.params.senderId);
     const receiverId = Number(req.params.receiverId);
+    const chat_room = senderId > receiverId? `${receiverId}_${senderId}`:`${senderId}_${receiverId}`;
 
     try {
         const result = await db.query(
             `SELECT id, sender_id, receiver_id, message, created_at
              FROM chat_messages
-             WHERE (sender_id = $1 AND receiver_id = $2)
-                OR (sender_id = $2 AND receiver_id = $1)
+             WHERE chat_room = $1
              ORDER BY created_at ASC`,
-            [senderId, receiverId]
+            [chat_room]
         );
 
         if (result.rows.length === 0) {
@@ -753,12 +818,13 @@ app.get('/api/chats/:senderId/:receiverId', async (req, res) => {
 app.post('/api/chats/:senderId/:receiverId', async (req, res) => {
     const senderId = Number(req.params.senderId);
     const receiverId = Number(req.params.receiverId);
+    const chat_room = senderId > receiverId? `${receiverId}_${senderId}`:`${senderId}_${receiverId}`;
     const { message } = req.body;
     try {
         const result = await db.query(`INSERT INTO chat_messages
-                      (sender_id, receiver_id, message)
-                      VALUES ($1, $2, $3) RETURNING id, sender_id, receiver_id, message, created_at`,
-                      [senderId, receiverId, message]);
+                      (sender_id, receiver_id, message, chat_room)
+                      VALUES ($1, $2, $3, $4) RETURNING id, sender_id, receiver_id, message, created_at`,
+                      [senderId, receiverId, message, chat_room]);
         res.status(201).json(result.rows[0]);
     }
     catch(error) {

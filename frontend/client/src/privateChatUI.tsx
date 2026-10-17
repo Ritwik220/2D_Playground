@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { socket } from "./Socket";
 
 interface Message {
@@ -7,6 +7,8 @@ interface Message {
     username: string;
     message: string;
     created_at: string;
+    sender_id: integer;
+    receiver_id: integer;
 }
 
 interface PrivateChatProps {
@@ -14,16 +16,72 @@ interface PrivateChatProps {
     other_display_name: string;
     username: string;
     other_username: string;
+    id: integer;
+    other_id: integer;
+    onClose: any;
 }
 
-export default function PrivateChatUI({
+export default  async function PrivateChatUI({
     display_name,
     other_display_name,
     username,
     other_username,
+    id,
+    other_id,
+    onClose
 }: PrivateChatProps) {
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadMessages() {
+            try {
+                const response = await fetch(
+                    `/api/chats/${id}/${other_id}`,
+                    { credentials: "include" }
+                );
+
+                if (response.status === 404) {
+                    if (!cancelled) setMessages([]);
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Failed to load chat history");
+                }
+
+                const data: Message[] = await response.json();
+
+                if (!cancelled) setMessages(data);
+            } catch (err) {
+                console.error("Failed to load chat history:", err);
+            }
+        }
+
+        setMessages([]);
+        loadMessages();
+
+        const handleMessage = (message: Message) => {
+            const belongsToChat =
+                (message.sender_id === id &&
+                    message.receiver_id === other_id) ||
+                (message.sender_id === other_id &&
+                    message.receiver_id === id);
+
+            if (belongsToChat) {
+                setMessages(prev => [...prev, message]);
+            }
+        };
+
+        socket.on("private_chat_message", handleMessage);
+
+        return () => {
+            cancelled = true;
+            socket.off("private_chat_message", handleMessage);
+        };
+    }, [id, other_id]);
 
     const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -31,10 +89,10 @@ export default function PrivateChatUI({
         const inputText = input.trim();
         if (!username || !inputText) return;
 
-        socket.emit("chat message sent", {
+        socket.emit("private_chat_message_sent", {
             message: inputText,
-            username,
-            receiver_username: other_username,
+            sender_id: id,
+            receiver_id: other_id,
         });
 
         setInput("");
@@ -77,6 +135,16 @@ export default function PrivateChatUI({
                                 tracking-widest text-indigo-300">
                     Direct
                 </div>
+                <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label="Close private chat"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center
+                            rounded-lg text-slate-400 transition-colors
+                            hover:bg-slate-800 hover:text-white"
+                >
+                    ✕
+                </button>
             </header>
 
             {/* Conversation */}
