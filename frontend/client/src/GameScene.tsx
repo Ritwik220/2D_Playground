@@ -150,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
             });
 
             rowBg.on("pointerdown", () => {
-                socket.emit("chat_handshake_initiated", id);
+                socket.emit("chat_handshake_initiated", {id: id});
                 console.log(`Clicked: ${label} on ${player.getData("username")}`);
             });
 
@@ -475,7 +475,8 @@ export default class GameScene extends Phaser.Scene {
 
         this.socket.on("chat_handshake_requested", (id) => {
             console.log(id);
-            // send chat_hand_shake_answer to backedn, create a room there and send chat_handshake_accepted to the other client
+            socket.emit("chat_handshake_answer");
+            // send chat_hand_shake_answer to backend, create a room there and send chat_handshake_accepted to the other client
         })
 
         

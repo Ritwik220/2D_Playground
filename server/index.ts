@@ -245,6 +245,15 @@ io.on("connection", async (socket) => {
     socket.on("chat_handshake_initiated", (id) => {
         io.to(id).emit("chat_handshake_requested", player.user_id);
     })
+    socket.on("chat_handshake_answer", (id) => {
+        const room = id>player.user_id?`${player.user_id}_${id}`: `${id}_${player.user_id}`
+        socket.join(room);
+        // display_name,
+        // other_display_name,
+        // username,
+        // other_username,
+        io.to(room).emit("chat_handshake_accepted", id, player.user_id);
+    })
     /*
     CREATE TABLE global_chat_messages (
     id SERIAL PRIMARY KEY,
