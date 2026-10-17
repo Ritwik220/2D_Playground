@@ -7,8 +7,8 @@ interface Message {
     username: string;
     message: string;
     created_at: string;
-    sender_id: integer;
-    receiver_id: integer;
+    sender_id: number;
+    receiver_id: number;
 }
 
 interface PrivateChatProps {
@@ -16,9 +16,9 @@ interface PrivateChatProps {
     other_display_name: string;
     username: string;
     other_username: string;
-    id: integer;
-    other_id: integer;
-    onClose: any;
+    id: number;
+    other_id: number;
+    onClose: () => void;
 }
 
 export default  function PrivateChatUI({
@@ -177,7 +177,7 @@ export default  function PrivateChatUI({
                     </div>
                 ) : (
                     messages.map((message) => {
-                        const isMine = message.username === username;
+                        const isMine = message.sender_id === id;
 
                         return (
                             <div
