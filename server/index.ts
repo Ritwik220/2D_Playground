@@ -243,19 +243,56 @@ io.on("connection", async (socket) => {
     });
 
     socket.on("chat_handshake_initiated", (id) => {
-        io.to(id).emit("chat_handshake_requested", player.user_id);
-    })
-    socket.on("chat_handshake_answer", (id) => {
-        const room = id>player.user_id?`${player.user_id}_${id}`: `${id}_${player.user_id}`
-        socket.join(room);
-        // display_name,
-        // other_display_name,
-        // username,
-        // other_username,
-        io.to(room).emit("chat_handshake_accepted", id, player.user_id);
-    })
+        const otherId = Number(id);
 
-    /*
+        if (!Number.isInteger(otherId) || otherId === Number(player.user_id)) {
+            return;
+        }
+
+        const room =
+            Number(player.user_id) < otherId
+                ? `${player.user_id}_${otherId}`
+                : `${otherId}_${player.user_id}`;
+
+        // The initiator must join the room too.
+        socket.join(room);
+
+        io.to(String(otherId)).emit(
+            "chat_handshake_requested",
+            player.user_id
+        );
+    });
+
+    socket.on("chat_handshake_answer", (id) => {
+        const otherId = Number(id);
+
+        if (!Number.isInteger(otherId) || otherId === Number(player.user_id)) {
+            return;
+        }
+
+        const room =
+            Number(player.user_id) < otherId
+                ? `${player.user_id}_${otherId}`
+                : `${otherId}_${player.user_id}`;
+
+        // The accepting user joins the same room.
+        socket.join(room);
+
+        // Accepter: first arg = other user, second arg = current user.
+        socket.emit(
+            "chat_handshake_accepted",
+            otherId,
+            player.user_id
+        );
+
+        // Initiator: first arg = other user, second arg = current user.
+        socket.to(room).emit(
+            "chat_handshake_accepted",
+            player.user_id,
+            otherId
+        );
+    });
+        /*
     CREATE TABLE
     metaverse=# CREATE TABLE chat_messages (
         id SERIAL PRIMARY KEY,
