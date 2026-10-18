@@ -366,16 +366,16 @@ export default class GameScene extends Phaser.Scene {
         ].filter((tileset): tileset is Phaser.Tilemaps.Tileset => tileset !== null);
 
         const ground = map.createLayer("Tile Layer 2", tilesets, 0, 0);
-        const layer1 = map.createLayer("Tile Layer 1", tilesets, 0, 0);
-        const layer3 = map.createLayer("Tile Layer 3", tilesets, 0, 0);
-        const layer4 = map.createLayer("Tile Layer 4", tilesets, 0, 0);
-        const layer5 = map.createLayer("Tile Layer 5", tilesets, 0, 0);
+        const objecs = map.createLayer("Tile Layer 1", tilesets, 0, 0);
+        const water = map.createLayer("Tile Layer 3", tilesets, 0, 0);
+        const dirt = map.createLayer("Tile Layer 4", tilesets, 0, 0);
+        const fence = map.createLayer("Tile Layer 5", tilesets, 0, 0);
 
-        [ground, layer1, layer3, layer4, layer5].forEach(layer => {
+        [ground, objecs, water, dirt, fence].forEach(layer => {
             layer?.setScale(4);
         });
 
-        [layer1, layer3, layer5].forEach(layer => {
+        [objecs, water, fence].forEach(layer => {
             layer?.setCollisionByExclusion([-1]);
         });
         
@@ -462,7 +462,9 @@ export default class GameScene extends Phaser.Scene {
 
             this.player.setScale(1);
             this.physics.add.existing(this.player);
-            this.physics.add.collider(this.player, objects);
+            this.physics.add.collider(this.player, objecs);
+            this.physics.add.collider(this.player, water);
+            this.physics.add.collider(this.player, fence);
             // Camera following the player and keeping them on center
             this.camera.startFollow(this.player);
             this.camera.setFollowOffset(5, 5);
