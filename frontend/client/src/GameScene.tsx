@@ -390,7 +390,17 @@ export default class GameScene extends Phaser.Scene {
         
         // getting the main camera
         this.camera = this.cameras.main;
-        this.camera.setZoom(2);
+        const updateZoom = (gameSize: Phaser.Structs.Size) => {
+            if (gameSize.width < 900) {
+                this.camera.setZoom(0.75); // Mobile
+            } else {
+                this.camera.setZoom(2); // Desktop
+            }
+        };
+
+        updateZoom(this.scale.gameSize);
+
+        this.scale.on("resize", updateZoom);
         
         // Add text object at the top left corner (x: 10, y: 10)
         const startX = this.camera.scrollX + 10;
