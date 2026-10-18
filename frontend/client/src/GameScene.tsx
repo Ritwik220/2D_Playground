@@ -30,7 +30,7 @@ const ICE_SERVERS: RTCIceServer[] = [
 export default class GameScene extends Phaser.Scene {
     private fpsText: any;
     private lastFootstep = 0;
-    // private footstepSound: any;
+    private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
     private joystickX = 0;
@@ -346,7 +346,7 @@ export default class GameScene extends Phaser.Scene {
         // const popupMenu = this.add.container(0, 0, [menuBg, menuText]);
         // popupMenu.setVisible(false);
         // popupMenu.setDepth(1000);
-        // // this.footstepSound = this.sound.add('footstep');
+        this.footstepSound = this.sound.add('footstep');
         const map = this.make.tilemap({ key: "world" });
 
         // Replace "YOUR_TILESET_NAME" with the tileset name shown in Tiled.
@@ -387,33 +387,53 @@ export default class GameScene extends Phaser.Scene {
         [objecs, fence].forEach(layer => {
             layer?.setCollisionByExclusion([-1]);
         });
+
+        this.fpsText = this.add.text(this.scale.width/2, 10, 'FPS: 0', {
+            fontFamily: 'Arial',
+            fontSize: '18px',
+            color: '#1e00ff'
+        });
+
         
         // getting the main camera
         this.camera = this.cameras.main;
+        this.camera.ignore(this.fpsText);
+        // Ensure the text stays fixed relative to the camera/screen
+        this.fpsText.setScrollFactor(0);
+        this.fpsText.setDepth(1000); // Keep it on top of other objects
+
+        // Create a separate camera for UI
+        const uiCamera = this.cameras.add(
+            0, 0,
+            this.scale.width,
+            this.scale.height
+        );
+
+        // Make the UI camera render ONLY the FPS text
+        uiCamera.setScroll(0, 0);
+        uiCamera.setZoom(1);
+        uiCamera.ignore(
+            this.children.list.filter(child => child !== this.fpsText)
+        );
         const updateZoom = (gameSize: Phaser.Structs.Size) => {
             if (gameSize.width < 900) {
-                this.camera.setZoom(0.75); // Mobile
+                this.camera.setZoom(1); // Mobile
             } else {
                 this.camera.setZoom(2); // Desktop
             }
+            uiCamera.setViewport(
+                0, 0,
+                gameSize.width,
+                gameSize.height
+            );
         };
 
         updateZoom(this.scale.gameSize);
 
         this.scale.on("resize", updateZoom);
         
-        // Add text object at the top left corner (x: 10, y: 10)
-        const startX = this.camera.scrollX + 10;
-        const startY = this.camera.scrollY + 10;
-        this.fpsText = this.add.text(startX, startY, 'FPS: 0', {
-            fontFamily: 'Arial',
-            fontSize: '18px',
-            color: '#1e00ff'
-        });
+        
 
-        // Ensure the text stays fixed relative to the camera/screen
-        this.fpsText.setScrollFactor(0);
-        this.fpsText.setDepth(1000); // Keep it on top of other objects
         
         // Adding the joystick
         this.joystick = new VirtualJoystick({scene: this});
@@ -541,11 +561,17 @@ export default class GameScene extends Phaser.Scene {
                 this.otherPlayersPopup.get(player.user_id)?.setPosition(sprite.x, sprite.y);
             }
 
-            const now = this.time.now;
-            if(now - sprite.getData("lastFootStep") > 300) {
-                this.sound.play('footstep', { volume: 0.4 });
-                sprite.setData("lastFootStep", now);
-            }
+            // const now = this.time.now;
+
+            // if(now - sprite.getData("lastFootStep") > 300) {
+            //     this.sound.play('footstep', { volume: 0.4 });
+            //     sprite.setData("lastFootStep", now);
+            // }
+            if(player.action != "idle")
+                this.footstepSound.play({loop: true})
+            else
+                this.footstepSound.stop();
+
             sprite.setData("targetX", player.x);
             sprite.setData("targetY", player.y);
 
@@ -748,11 +774,11 @@ export default class GameScene extends Phaser.Scene {
             moveX !== 0 ||
             moveY !== 0
         ) {
-            const now = this.time.now;
-            if(now - this.lastFootstep > 300) {
-                this.sound.play('footstep', { volume: 0.4 });
-                this.lastFootstep = now;
-            }
+            // const now = this.time.now;
+            if(this.action != "idle")
+                this.footstepSound.play({loop: true})
+            else
+                this.footstepSound.stop();
             this.socket.emit("player_move", {
             x: this.player.x,
             y: this.player.y,
