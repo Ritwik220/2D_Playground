@@ -88,6 +88,12 @@ export default class GameScene extends Phaser.Scene {
         // Preloading the map
         this.load.tilemapTiledJSON("world", "/Maps/placeholder.json");
         this.load.image("tileset", "/Tilesets/punyworld-overworld-tileset.png");
+        this.load.image("Grass", "/Tilesets/Grass.png");
+        this.load.image("Water", "/Tilesets/Water.png");
+        this.load.image("Interior_objects", "/Tilesets/Interior_objects.png");
+        this.load.image("Fences", "/Tilesets/Fences.png");
+        this.load.image("Exterior", "/Tilesets/Exterior.png");
+
         // Preloading the keys and the spritesheets
         this.keys = this.input.keyboard!.addKeys("W,A,S,D") as typeof this.keys;
         this.Actions.forEach((action: string) => {
@@ -340,20 +346,38 @@ export default class GameScene extends Phaser.Scene {
         const map = this.make.tilemap({ key: "world" });
 
         // Replace "YOUR_TILESET_NAME" with the tileset name shown in Tiled.
-        const tileset = map.addTilesetImage(
+        const tileset1 = map.addTilesetImage(
             "punyworld-overworld-tileset",
             "tileset"
         );
+        const tileset2 = map.addTilesetImage("Grass", "Grass");
+        const tileset3 = map.addTilesetImage("Water", "Water");
+        const tileset4 = map.addTilesetImage("Interior_objects", "Interior_objects");
+        const tileset5 = map.addTilesetImage("Fences", "Fences");
+        const tileset6 = map.addTilesetImage("Exterior", "Exterior");
 
-        if (!tileset) {
-            throw new Error("Could not load map tileset");
-        }
+        const tilesets = [
+            tileset1,
+            tileset2,
+            tileset3,
+            tileset4,
+            tileset5,
+            tileset6
+        ].filter((tileset): tileset is Phaser.Tilemaps.Tileset => tileset !== null);
 
-        const ground = map.createLayer("Tile Layer 2", tileset, 0, 0);
-        const objects = map.createLayer("Tile Layer 1", tileset, 0, 0);
-        ground.setScale(4);
-        objects.setScale(4);
-        objects.setCollisionByExclusion([-1]);
+        const ground = map.createLayer("Tile Layer 2", tilesets, 0, 0);
+        const layer1 = map.createLayer("Tile Layer 1", tilesets, 0, 0);
+        const layer3 = map.createLayer("Tile Layer 3", tilesets, 0, 0);
+        const layer4 = map.createLayer("Tile Layer 4", tilesets, 0, 0);
+        const layer5 = map.createLayer("Tile Layer 5", tilesets, 0, 0);
+
+        [ground, layer1, layer3, layer4, layer5].forEach(layer => {
+            layer?.setScale(4);
+        });
+
+        [layer1, layer3, layer5].forEach(layer => {
+            layer?.setCollisionByExclusion([-1]);
+        });
         
         // getting the main camera
         this.camera = this.cameras.main;

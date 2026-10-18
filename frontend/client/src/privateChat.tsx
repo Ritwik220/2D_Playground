@@ -63,7 +63,7 @@ export default function PrivateChat() {
         if(isOpen)
             return <PrivateChatUI display_name={displayName} other_display_name={otherDisplayName} username={username} other_username={otherUsername} id={id} other_id={otherId} onClose={() => setIsOpen(false)}/>;
         else
-            return;
+            return
     }
     return (
         <div>
