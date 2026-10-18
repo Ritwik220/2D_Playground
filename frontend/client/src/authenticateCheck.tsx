@@ -62,8 +62,8 @@ export default function AuthCheck() {
             <div className="absolute top-4 right-4 z-50 w-80 max-h-[80vh] flex flex-col">
                 <GlobalChat />
             </div>
-            <div className="absolute top-4 left-4 z-50 w-80 max-h-[80vh] flex flex-col">
-                <PrivateChat/>
+            <div className="absolute top-4 left-4 z-50 w-80 h-[80vh] max-h-[calc(100vh-2rem)] flex flex-col">
+                <PrivateChat />
             </div>
             <AudioToggle />
 

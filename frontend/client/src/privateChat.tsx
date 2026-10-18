@@ -60,14 +60,24 @@ export default function PrivateChat() {
     }, []);
 
     const return_val = () => {
-        if(isOpen)
-            return <PrivateChatUI display_name={displayName} other_display_name={otherDisplayName} username={username} other_username={otherUsername} id={id} other_id={otherId} onClose={() => setIsOpen(false)}/>;
-        else
-            return
-    }
+        if (isOpen)
+            return (
+                <PrivateChatUI
+                    display_name={displayName}
+                    other_display_name={otherDisplayName}
+                    username={username}
+                    other_username={otherUsername}
+                    id={id}
+                    other_id={otherId}
+                    onClose={() => setIsOpen(false)}
+                />
+            );
+
+        return null;
+    };
     return (
-        <div>
-            {return_val()};
+         <div className="h-full min-h-0 overflow-hidden">
+            {return_val()}
         </div>
     )
 }
