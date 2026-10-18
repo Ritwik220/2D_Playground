@@ -466,11 +466,10 @@ export default class GameScene extends Phaser.Scene {
             })
             
 
-
+            this.player.setScale(0.4);
             // this.player.setScale(0.5);
             this.physics.add.existing(this.player);
             this.physics.add.collider(this.player, objecs);
-            this.physics.add.collider(this.player, water);
             this.physics.add.collider(this.player, fence);
             // Camera following the player and keeping them on center
             this.camera.startFollow(this.player);
