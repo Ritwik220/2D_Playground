@@ -357,6 +357,8 @@ export default class GameScene extends Phaser.Scene {
         const tileset4 = map.addTilesetImage("Interior_objects", "Interior_objects");
         const tileset5 = map.addTilesetImage("Fences", "Fences");
         const tileset6 = map.addTilesetImage("Exterior", "Exterior");
+        const tileset7 = map.addTilesetImage("Tilled Dirt", "Tilled Dirt");
+        const tileset8 = map.addTilesetImage("Wooden House", "Wooden House");
 
         const tilesets = [
             tileset1,
