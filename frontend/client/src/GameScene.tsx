@@ -87,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
         this.load.audio('footstep', '/Sounds/running.mp3');
         // Preloading the map
         this.load.tilemapTiledJSON("world", "/Maps/placeholder.json");
-        this.load.image("tileset", "/Tilesets/punyworld-overworld-tileset.png");
+        this.load.image("punyworld-overworld-tileset", "/Tilesets/punyworld-overworld-tileset.png");
         this.load.image("Grass", "/Tilesets/Grass.png");
         this.load.image("Water", "/Tilesets/Water.png");
         this.load.image("Interior_objects", "/Tilesets/Interior_objects.png");
