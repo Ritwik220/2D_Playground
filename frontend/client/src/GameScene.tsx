@@ -93,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
         this.load.image("Interior_objects", "/Tilesets/Interior_objects.png");
         this.load.image("Fences", "/Tilesets/Fences.png");
         this.load.image("Exterior", "/Tilesets/Exterior.png");
-        this.load.image("Tiled Dirt", "/Tilesets/Tilled Dirt.png")
+        this.load.image("Tilled Dirt", "/Tilesets/Tilled Dirt.png")
         this.load.image("Wooden House", "/Tilesets/Wooden House.png")
 
         // Preloading the keys and the spritesheets
