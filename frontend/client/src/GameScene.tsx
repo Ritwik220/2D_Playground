@@ -569,7 +569,7 @@ export default class GameScene extends Phaser.Scene {
             // }
             if(player.action != "idle" && !this.footstepSound.isPlaying)
                 this.footstepSound.play({loop: true})
-            else
+            else if(player.action == "idle")
                 this.footstepSound.stop();
 
             sprite.setData("targetX", player.x);
@@ -777,7 +777,7 @@ export default class GameScene extends Phaser.Scene {
             // const now = this.time.now;
             if(this.action != "idle" && !this.footstepSound.isPlaying)
                 this.footstepSound.play({loop: true})
-            else
+            else if(this.action == "idle")
                 this.footstepSound.stop();
             this.socket.emit("player_move", {
             x: this.player.x,
