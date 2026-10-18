@@ -29,7 +29,7 @@ const ICE_SERVERS: RTCIceServer[] = [
 ];
 export default class GameScene extends Phaser.Scene {
     private fpsText: any;
-    private lastFootstep = 0;
+    // private lastFootstep = 0;
     private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
