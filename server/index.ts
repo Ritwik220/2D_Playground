@@ -879,7 +879,7 @@ app.post('/api/chats/:senderId/:receiverId', async (req, res) => {
 CREATE TABLE global_chat_messages (
     id SERIAL PRIMARY KEY,
     sender_id INTEGER NOT NULL REFERENCES users(id),
-    username TEXT unique NOT NULL REFERENCES user(user_name),
+    username TEXT unique NOT NULL REFERENCES users(user_name),
     message TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );

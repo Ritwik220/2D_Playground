@@ -93,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
         this.load.image("Interior_objects", "/Tilesets/Interior_objects.png");
         this.load.image("Fences", "/Tilesets/Fences.png");
         this.load.image("Exterior", "/Tilesets/Exterior.png");
-        this.load.image("Tiled Dirt", "/Tilesets/Tiled Dirt.png")
+        this.load.image("Tiled Dirt", "/Tilesets/Tilled Dirt.png")
         this.load.image("Wooden House", "/Tilesets/Wooden House.png")
 
         // Preloading the keys and the spritesheets
@@ -376,6 +376,7 @@ export default class GameScene extends Phaser.Scene {
         [ground, objecs, water, dirt, fence].forEach(layer => {
             layer?.setScale(4);
         });
+        
 
         [objecs, water, fence].forEach(layer => {
             layer?.setCollisionByExclusion([-1]);
@@ -462,7 +463,7 @@ export default class GameScene extends Phaser.Scene {
             
 
 
-            this.player.setScale(1);
+            // this.player.setScale(0.5);
             this.physics.add.existing(this.player);
             this.physics.add.collider(this.player, objecs);
             this.physics.add.collider(this.player, water);
