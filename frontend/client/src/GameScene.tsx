@@ -32,6 +32,7 @@ export default class GameScene extends Phaser.Scene {
     // private lastFootstep = 0;
     private footstepSound: any;
     private camera!: Phaser.Cameras.Scene2D.Camera;
+    private uiCamera!: Phaser.Cameras.Scene2D.Camera;
     // Virtual joystick axes
     private joystickX = 0;
     private joystickY = 0;
@@ -233,6 +234,10 @@ export default class GameScene extends Phaser.Scene {
         ).setOrigin(0.5);
         nameTag.setScale(0.7);
 
+        this.uiCamera.ignore(sprite);
+        this.uiCamera.ignore(nameTag);
+        
+
         if (this.player) {
             this.physics.add.collider(this.player, sprite);
         }
@@ -400,19 +405,19 @@ export default class GameScene extends Phaser.Scene {
         this.camera.ignore(this.fpsText);
         // Ensure the text stays fixed relative to the camera/screen
         this.fpsText.setScrollFactor(0);
-        this.fpsText.setDepth(1000); // Keep it on top of other objects
+        this.fpsText.setDepth(100000); // Keep it on top of other objects
 
         // Create a separate camera for UI
-        const uiCamera = this.cameras.add(
+        this.uiCamera = this.cameras.add(
             0, 0,
             this.scale.width,
             this.scale.height
         );
 
         // Make the UI camera render ONLY the FPS text
-        uiCamera.setScroll(0, 0);
-        uiCamera.setZoom(1);
-        uiCamera.ignore(
+        this.uiCamera.setScroll(0, 0);
+        this.uiCamera.setZoom(1);
+        this.uiCamera.ignore(
             this.children.list.filter(child => child !== this.fpsText)
         );
         const updateZoom = (gameSize: Phaser.Structs.Size) => {
@@ -421,7 +426,7 @@ export default class GameScene extends Phaser.Scene {
             } else {
                 this.camera.setZoom(2); // Desktop
             }
-            uiCamera.setViewport(
+            this.uiCamera.setViewport(
                 0, 0,
                 gameSize.width,
                 gameSize.height
@@ -516,6 +521,9 @@ export default class GameScene extends Phaser.Scene {
                 stroke: '#000000',
                 strokeThickness: 2
             }).setOrigin(0.5);
+
+            this.uiCamera.ignore(this.player);
+            this.uiCamera.ignore(this.playerNameText)
 
             this.player.anims.play("idle_up", true);
 
