@@ -212,6 +212,7 @@ export default class GameScene extends Phaser.Scene {
         sprite.setData("targetX", player.x);
         sprite.setData("targetY", player.y);
         sprite.setData("username", player.username);
+        sprite.setScale(0.7);
 
         sprite.on("pointerup", () => {
             this.createPlayerMenu(sprite, player.user_id);
@@ -230,6 +231,7 @@ export default class GameScene extends Phaser.Scene {
                 strokeThickness: 2
             }
         ).setOrigin(0.5);
+        nameTag.setScale(0.7);
 
         if (this.player) {
             this.physics.add.collider(this.player, sprite);
@@ -466,7 +468,7 @@ export default class GameScene extends Phaser.Scene {
             })
             
 
-            this.player.setScale(0.4);
+            this.player.setScale(0.7);
             // this.player.setScale(0.5);
             this.physics.add.existing(this.player);
             this.physics.add.collider(this.player, objecs);
