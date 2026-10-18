@@ -366,7 +366,9 @@ export default class GameScene extends Phaser.Scene {
             tileset3,
             tileset4,
             tileset5,
-            tileset6
+            tileset6,
+            tileset7,
+            tileset8
         ].filter((tileset): tileset is Phaser.Tilemaps.Tileset => tileset !== null);
 
         const ground = map.createLayer("Tile Layer 2", tilesets, 0, 0);
@@ -380,7 +382,7 @@ export default class GameScene extends Phaser.Scene {
         });
         
 
-        [objecs, water, fence].forEach(layer => {
+        [objecs, fence].forEach(layer => {
             layer?.setCollisionByExclusion([-1]);
         });
         
