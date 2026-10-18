@@ -377,9 +377,9 @@ export default class GameScene extends Phaser.Scene {
         const dirt = map.createLayer("Tile Layer 4", tilesets, 0, 0);
         const fence = map.createLayer("Tile Layer 5", tilesets, 0, 0);
 
-        [ground, objecs, water, dirt, fence].forEach(layer => {
-            layer?.setScale(4);
-        });
+        // [ground, objecs, water, dirt, fence].forEach(layer => {
+        //     layer?.setScale(4);
+        // });
         
 
         [objecs, fence].forEach(layer => {
